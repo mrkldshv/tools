@@ -935,6 +935,8 @@
 <span id="935">935</span>
 <span id="936">936</span>
 <span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io</span>, <span class="ident">iter</span>};
 
 <span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">fmt</span>, <span class="ident">markup</span>, <span class="ident">Markup</span>, <span class="ident">MarkupBuf</span>, <span class="ident">MarkupElement</span>, <span class="ident">MarkupNode</span>};
@@ -1062,10 +1064,12 @@
         }
 
         <span class="comment">// Load the printed width for the header, and fill the rest of the line</span>
-        <span class="comment">// with the &#39;━&#39; line character up to 100 characters</span>
+        <span class="comment">// with the &#39;━&#39; line character up to 100 columns with at least 10 characters</span>
         <span class="kw">const</span> <span class="ident">HEADER_WIDTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">100</span>;
+        <span class="kw">const</span> <span class="ident">MIN_WIDTH</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">10</span>;
+
         <span class="kw">let</span> <span class="ident">text_width</span> <span class="op">=</span> <span class="ident">slot</span>.<span class="ident">map_or</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">writer</span><span class="op">|</span> <span class="ident">writer</span>.<span class="ident">width</span>);
-        <span class="kw">let</span> <span class="ident">line_width</span> <span class="op">=</span> <span class="ident">HEADER_WIDTH</span>.<span class="ident">saturating_sub</span>(<span class="ident">text_width</span>);
+        <span class="kw">let</span> <span class="ident">line_width</span> <span class="op">=</span> <span class="ident">HEADER_WIDTH</span>.<span class="ident">saturating_sub</span>(<span class="ident">text_width</span>).<span class="ident">max</span>(<span class="ident">MIN_WIDTH</span>);
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\u{2501}&quot;</span>.<span class="ident">repeat</span>(<span class="ident">line_width</span>))
     }
 }

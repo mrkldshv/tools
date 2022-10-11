@@ -1147,6 +1147,16 @@
 <span id="1147">1147</span>
 <span id="1148">1148</span>
 <span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
+<span id="1154">1154</span>
+<span id="1155">1155</span>
+<span id="1156">1156</span>
+<span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::JsAnyConditional</span>;
 <span class="kw">use</span> <span class="ident">rome_formatter</span>::{
@@ -2100,10 +2110,13 @@
                 <span class="comment">//   key: &#39;val&#39;</span>
                 <span class="comment">// }</span>
                 <span class="comment">// ```</span>
-                <span class="prelude-val">Some</span>(<span class="ident">initializer</span>) <span class="kw">if</span> <span class="ident">initializer</span>.<span class="ident">syntax</span>() <span class="op">==</span> <span class="ident">following</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">expression</span>) <span class="op">=</span> <span class="ident">initializer</span>.<span class="ident">expression</span>() {
-                        <span class="kw">return</span> <span class="ident">CommentPlacement::leading</span>(<span class="ident">expression</span>.<span class="ident">into_syntax</span>(), <span class="ident">comment</span>);
-                    }
+                <span class="prelude-val">Some</span>(<span class="ident">initializer</span>)
+                    <span class="kw">if</span> <span class="ident">initializer</span>.<span class="ident">syntax</span>() <span class="op">==</span> <span class="ident">following</span>
+                        <span class="op">&amp;&amp;</span> <span class="ident">initializer</span>
+                            .<span class="ident">expression</span>()
+                            .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">expression</span><span class="op">|</span> <span class="ident">is_complex_value</span>(<span class="ident">expression</span>.<span class="ident">syntax</span>())) =&gt;
+                {
+                    <span class="kw">return</span> <span class="ident">CommentPlacement::leading</span>(<span class="ident">initializer</span>.<span class="ident">into_syntax</span>(), <span class="ident">comment</span>);
                 }
                 <span class="kw">_</span> =&gt; {
                     <span class="comment">// fall through</span>
@@ -2111,22 +2124,29 @@
             }
         }
         <span class="ident">JsSyntaxKind::JS_INITIALIZER_CLAUSE</span> =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variable_declarator</span>) <span class="op">=</span>
-                <span class="ident">enclosing</span>.<span class="ident">parent</span>().<span class="ident">and_then</span>(<span class="ident">JsVariableDeclarator::cast</span>)
-            {
+            <span class="kw">let</span> <span class="ident">parent_kind</span> <span class="op">=</span> <span class="ident">enclosing</span>.<span class="ident">parent</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">kind</span>());
+
+            <span class="kw">if</span> <span class="macro">matches!</span>(
+                <span class="ident">parent_kind</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">JsSyntaxKind::JS_VARIABLE_DECLARATOR</span> <span class="op">|</span> <span class="ident">JsSyntaxKind::JS_PROPERTY_CLASS_MEMBER</span>)
+            ) {
+                <span class="kw">let</span> <span class="ident">not_complex</span> <span class="op">=</span>
+                    <span class="macro">matches!</span>(<span class="ident">parent_kind</span>, <span class="prelude-val">Some</span>(<span class="ident">JsSyntaxKind::JS_PROPERTY_CLASS_MEMBER</span>))
+                        <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">is_complex_value</span>(<span class="ident">following</span>);
+
                 <span class="comment">// Keep trailing comments with the id for variable declarators. Necessary because the value is wrapped</span>
                 <span class="comment">// inside of an initializer clause.</span>
                 <span class="comment">// ```javascript</span>
                 <span class="comment">// let a = // comment</span>
                 <span class="comment">//      b;</span>
                 <span class="comment">// ```</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">is_complex_value</span>(<span class="ident">following</span>)
+                <span class="kw">if</span> <span class="ident">not_complex</span>
                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">JsCommentStyle::is_suppression</span>(<span class="ident">comment</span>.<span class="ident">piece</span>().<span class="ident">text</span>())
                     <span class="op">&amp;&amp;</span> <span class="ident">comment</span>.<span class="ident">kind</span>().<span class="ident">is_line</span>()
                     <span class="op">&amp;&amp;</span> <span class="ident">comment</span>.<span class="ident">preceding_node</span>().<span class="ident">is_none</span>()
                 {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">variable_declarator</span>.<span class="ident">id</span>() {
-                        <span class="kw">return</span> <span class="ident">CommentPlacement::trailing</span>(<span class="ident">id</span>.<span class="ident">into_syntax</span>(), <span class="ident">comment</span>);
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev_node</span>) <span class="op">=</span> <span class="ident">enclosing</span>.<span class="ident">prev_sibling</span>() {
+                        <span class="kw">return</span> <span class="ident">CommentPlacement::trailing</span>(<span class="ident">prev_node</span>, <span class="ident">comment</span>);
                     }
                 }
             }

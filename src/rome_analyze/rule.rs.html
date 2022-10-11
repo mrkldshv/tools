@@ -450,6 +450,9 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::categories</span>::{<span class="ident">ActionCategory</span>, <span class="ident">RuleCategory</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::context::RuleContext</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::registry</span>::{<span class="ident">RuleLanguage</span>, <span class="ident">RuleSuppressions</span>};
@@ -460,6 +463,7 @@
 <span class="kw">use</span> <span class="ident">rome_diagnostics</span>::{<span class="ident">file::FileId</span>, <span class="ident">Applicability</span>, <span class="ident">Severity</span>};
 <span class="kw">use</span> <span class="ident">rome_diagnostics</span>::{<span class="ident">DiagnosticTag</span>, <span class="ident">Footer</span>, <span class="ident">Span</span>};
 <span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">BatchMutation</span>, <span class="ident">Language</span>, <span class="ident">TextRange</span>};
+<span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
 
 <span class="doccomment">/// Static metadata containing information about a rule</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RuleMetadata</span> {
@@ -691,6 +695,8 @@
     <span class="doccomment">/// An iterator type returned by `run` to yield zero or more signals to the</span>
     <span class="doccomment">/// analyzer</span>
     <span class="kw">type</span> <span class="ident">Signals</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::State</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The options that belong to a rule</span>
+    <span class="kw">type</span> <span class="ident">Options</span>: <span class="ident">DeserializeOwned</span>;
 
     <span class="kw">fn</span> <span class="ident">phase</span>() -&gt; <span class="ident">Phases</span> {
         <span class="op">&lt;</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Rule</span><span class="op">&gt;</span><span class="ident">::Query</span> <span class="kw">as</span> <span class="ident">Queryable</span><span class="op">&gt;</span><span class="ident">::Services</span> <span class="kw">as</span> <span class="ident">Phase</span><span class="op">&gt;</span><span class="ident">::phase</span>()

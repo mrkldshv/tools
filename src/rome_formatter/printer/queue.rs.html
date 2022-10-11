@@ -402,71 +402,6 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::format_element::tag::TagKind</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude::Tag</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::printer::stack</span>::{<span class="ident">Stack</span>, <span class="ident">StackedStack</span>};
@@ -757,18 +692,18 @@
 <span class="doccomment">/// A predicate determining when to end measuring if some content fits on the line.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Called for every [`element`](FormatElement) in the [FitsQueue] when measuring if a content</span>
-<span class="doccomment">/// fits on the line. The measuring of the content ends for the first [`element`](FormatElement) that this</span>
-<span class="doccomment">/// predicate returns `false`.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait</span> <span class="ident">FitsPredicate</span> {
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
+<span class="doccomment">/// fits on the line. The measuring of the content ends after the first element [`element`](FormatElement) for which this</span>
+<span class="doccomment">/// predicate returns `true` (similar to a take while iterator except that it takes while the predicate returns `false`).</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait</span> <span class="ident">FitsEndPredicate</span> {
+    <span class="kw">fn</span> <span class="ident">is_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// Filter that includes all elements until it reaches the end of the document.</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct</span> <span class="ident">AllPredicate</span>;
 
-<span class="kw">impl</span> <span class="ident">FitsPredicate</span> <span class="kw">for</span> <span class="ident">AllPredicate</span> {
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
+<span class="kw">impl</span> <span class="ident">FitsEndPredicate</span> <span class="kw">for</span> <span class="ident">AllPredicate</span> {
+    <span class="kw">fn</span> <span class="ident">is_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
     }
 }
 
@@ -779,21 +714,27 @@
     <span class="ident">Done</span>,
 }
 
+<span class="kw">impl</span> <span class="ident">SingleEntryPredicate</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_done</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">SingleEntryPredicate::Done</span>)
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SingleEntryPredicate</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">SingleEntryPredicate::Entry</span> { <span class="ident">depth</span>: <span class="number">0</span> }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">FitsPredicate</span> <span class="kw">for</span> <span class="ident">SingleEntryPredicate</span> {
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">FitsEndPredicate</span> <span class="kw">for</span> <span class="ident">SingleEntryPredicate</span> {
+    <span class="kw">fn</span> <span class="ident">is_end</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SingleEntryPredicate::Done</span> =&gt; <span class="bool-val">false</span>,
+            <span class="ident">SingleEntryPredicate::Done</span> =&gt; <span class="bool-val">true</span>,
             <span class="ident">SingleEntryPredicate::Entry</span> { <span class="ident">depth</span> } =&gt; <span class="kw">match</span> <span class="ident">element</span> {
                 <span class="ident">FormatElement::Tag</span>(<span class="ident">Tag::StartEntry</span>) =&gt; {
                     <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
-                    <span class="bool-val">true</span>
+                    <span class="bool-val">false</span>
                 }
                 <span class="ident">FormatElement::Tag</span>(<span class="ident">Tag::EndEntry</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
@@ -802,91 +743,20 @@
 
                     <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
 
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
+                    <span class="kw">let</span> <span class="ident">is_end</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span>;
+
+                    <span class="kw">if</span> <span class="ident">is_end</span> {
                         <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">SingleEntryPredicate::Done</span>;
                     }
 
-                    <span class="bool-val">true</span>
+                    <span class="ident">is_end</span>
                 }
-                <span class="ident">FormatElement::Interned</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+                <span class="ident">FormatElement::Interned</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
                 <span class="ident">element</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> =&gt; {
                     <span class="kw">return</span> <span class="ident">invalid_start_tag</span>(<span class="ident">TagKind::Entry</span>, <span class="prelude-val">Some</span>(<span class="ident">element</span>));
                 }
-                <span class="kw">_</span> =&gt; <span class="bool-val">true</span>,
+                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
             },
-        };
-
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
-    }
-}
-
-<span class="doccomment">/// Queue filter that returns all elements belonging to the separator and the following item of a fill pair.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The fill element consists of entries where each entry is separated by [Tag::StartEntry] and [Tag::EndEntry].</span>
-<span class="doccomment">/// This filter takes up to two [Tag::StartEntry]/[Tag::StopEntry] but may end after one if</span>
-<span class="doccomment">/// it reaches the [Tag::EndFill] element (last item without a separator).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum</span> <span class="ident">SeparatorItemPairPredicate</span> {
-    <span class="ident">Separator</span> { <span class="ident">depth</span>: <span class="ident">usize</span> },
-    <span class="ident">Item</span> { <span class="ident">depth</span>: <span class="ident">usize</span> },
-    <span class="ident">Done</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">SeparatorItemPairPredicate</span> {
-    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">SeparatorItemPairPredicate::Item</span> { .. })
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SeparatorItemPairPredicate</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Separator</span> { <span class="ident">depth</span>: <span class="number">0</span> }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">FitsPredicate</span> <span class="kw">for</span> <span class="ident">SeparatorItemPairPredicate</span> {
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">element</span>: <span class="kw-2">&amp;</span><span class="ident">FormatElement</span>) -&gt; <span class="ident">PrintResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">is_item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">is_item</span>();
-
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SeparatorItemPairPredicate::Item</span> { <span class="ident">depth</span> }
-            <span class="op">|</span> <span class="ident">SeparatorItemPairPredicate::Separator</span> { <span class="ident">depth</span> } =&gt; {
-                <span class="kw">match</span> <span class="ident">element</span> {
-                    <span class="ident">FormatElement::Tag</span>(<span class="ident">Tag::StartEntry</span>) =&gt; {
-                        <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-
-                        <span class="bool-val">true</span>
-                    }
-                    <span class="ident">FormatElement::Tag</span>(<span class="ident">Tag::EndEntry</span>) =&gt; {
-                        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
-                            <span class="kw">return</span> <span class="ident">invalid_end_tag</span>(<span class="ident">TagKind::Entry</span>, <span class="prelude-val">None</span>);
-                        }
-
-                        <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-
-                        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
-                            <span class="kw">if</span> <span class="ident">is_item</span> {
-                                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">SeparatorItemPairPredicate::Done</span>;
-                            } <span class="kw">else</span> {
-                                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">SeparatorItemPairPredicate::Item</span> { <span class="ident">depth</span>: <span class="number">0</span> }
-                            }
-                        }
-
-                        <span class="bool-val">true</span>
-                    }
-                    <span class="comment">// No item, trailing separator only</span>
-                    <span class="ident">FormatElement::Tag</span>(<span class="ident">Tag::EndFill</span>) <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">is_item</span> =&gt; {
-                        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">SeparatorItemPairPredicate::Done</span>;
-                        <span class="bool-val">false</span>
-                    }
-                    <span class="ident">FormatElement::Interned</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-                    <span class="ident">element</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> =&gt; {
-                        <span class="kw">return</span> <span class="ident">invalid_start_tag</span>(<span class="ident">TagKind::Entry</span>, <span class="prelude-val">Some</span>(<span class="ident">element</span>));
-                    }
-                    <span class="kw">_</span> =&gt; <span class="bool-val">true</span>,
-                }
-            }
-            <span class="ident">SeparatorItemPairPredicate::Done</span> =&gt; <span class="bool-val">false</span>,
         };
 
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)

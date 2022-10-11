@@ -633,14 +633,10 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Parser</span>;
 <span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
 <span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
-<span class="kw">use</span> <span class="ident">rome_js_syntax</span>::{<span class="ident">Language</span>, <span class="ident">SourceType</span>};
+<span class="kw">use</span> <span class="ident">rome_js_syntax::SourceType</span>;
 <span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">TextRange</span>, <span class="ident">TextSize</span>};
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>, <span class="ident">Range</span>};
@@ -741,11 +737,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">ParserState</span> {
             <span class="ident">parsing_context</span>: <span class="ident">ParsingContextFlags::TOP_LEVEL</span>,
             <span class="ident">label_set</span>: <span class="ident">IndexMap::new</span>(),
-            <span class="ident">strict</span>: <span class="kw">if</span> <span class="ident">source_type</span>.<span class="ident">module_kind</span>().<span class="ident">is_module</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">StrictMode::Module</span>)
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
+            <span class="ident">strict</span>: <span class="ident">source_type</span>
+                .<span class="ident">module_kind</span>()
+                .<span class="ident">is_module</span>()
+                .<span class="ident">then_some</span>(<span class="ident">StrictMode::Module</span>),
             <span class="ident">default_item</span>: <span class="prelude-val">None</span>,
             <span class="ident">name_map</span>: <span class="ident">IndexMap::new</span>(),
             <span class="ident">duplicate_binding_parent</span>: <span class="prelude-val">None</span>,
@@ -757,13 +752,10 @@
             <span class="ident">state</span>.<span class="ident">parsing_context</span> <span class="op">|</span><span class="op">=</span> <span class="ident">ParsingContextFlags::IN_ASYNC</span>
         }
 
-        <span class="kw">if</span> <span class="macro">matches!</span>(
-            <span class="ident">source_type</span>.<span class="ident">language</span>(),
-            <span class="ident">Language::TypeScript</span> {
-                <span class="ident">definition_file</span>: <span class="bool-val">true</span>
-            }
-        ) {
-            <span class="ident">state</span>.<span class="ident">parsing_context</span> <span class="op">|</span><span class="op">=</span> <span class="ident">ParsingContextFlags::AMBIENT_CONTEXT</span>
+        <span class="comment">// test d.ts arguments_in_definition_file</span>
+        <span class="comment">// function a(...arguments: any[]): void;</span>
+        <span class="kw">if</span> <span class="ident">source_type</span>.<span class="ident">language</span>().<span class="ident">is_definition_file</span>() {
+            <span class="ident">EnterAmbientContext</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
 
         <span class="ident">state</span>

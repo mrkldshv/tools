@@ -671,7 +671,7 @@
 };
 
 <span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">fmt</span>, <span class="ident">markup</span>};
-<span class="kw">use</span> <span class="ident">rome_text_size</span>::{<span class="ident">TextRange</span>, <span class="ident">TextSize</span>};
+<span class="kw">use</span> <span class="ident">rome_text_size</span>::{<span class="ident">TextLen</span>, <span class="ident">TextRange</span>, <span class="ident">TextSize</span>};
 <span class="kw">use</span> <span class="ident">unicode_width::UnicodeWidthChar</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::v2</span>::{
@@ -837,31 +837,31 @@
             <span class="kw">let</span> <span class="ident">is_first_line</span> <span class="op">=</span> <span class="ident">line_index</span> <span class="op">==</span> <span class="ident">start_location</span>.<span class="ident">line_number</span>;
             <span class="kw">let</span> <span class="ident">is_last_line</span> <span class="op">=</span> <span class="ident">line_index</span> <span class="op">==</span> <span class="ident">end_location</span>.<span class="ident">line_number</span>;
 
+            <span class="kw">let</span> <span class="ident">start_index_relative_to_line</span> <span class="op">=</span>
+                <span class="ident">start_index</span>.<span class="ident">max</span>(<span class="ident">line_range</span>.<span class="ident">start</span>()) <span class="op">-</span> <span class="ident">line_range</span>.<span class="ident">start</span>();
+            <span class="kw">let</span> <span class="ident">end_index_relative_to_line</span> <span class="op">=</span> <span class="ident">end_index</span>.<span class="ident">min</span>(<span class="ident">line_range</span>.<span class="ident">end</span>()) <span class="op">-</span> <span class="ident">line_range</span>.<span class="ident">start</span>();
+
             <span class="kw">let</span> <span class="ident">marker</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_first_line</span> <span class="op">&amp;&amp;</span> <span class="ident">is_last_line</span> {
                 <span class="comment">// Only line in the selection</span>
-                <span class="kw">let</span> <span class="ident">start_index</span> <span class="op">=</span>
-                    <span class="ident">TextSize::try_from</span>(<span class="ident">start_location</span>.<span class="ident">column_number</span>.<span class="ident">to_zero_indexed</span>())
-                        .<span class="ident">expect</span>(<span class="string">&quot;integer overflow&quot;</span>);
-                <span class="kw">let</span> <span class="ident">end_index</span> <span class="op">=</span> <span class="ident">TextSize::try_from</span>(<span class="ident">end_location</span>.<span class="ident">column_number</span>.<span class="ident">to_zero_indexed</span>())
-                    .<span class="ident">expect</span>(<span class="string">&quot;integer overflow&quot;</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">TextRange::new</span>(<span class="ident">start_index</span>, <span class="ident">end_index</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">TextRange::new</span>(
+                    <span class="ident">start_index_relative_to_line</span>,
+                    <span class="ident">end_index_relative_to_line</span>,
+                ))
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_first_line</span> {
                 <span class="comment">// First line in selection</span>
-                <span class="kw">let</span> <span class="ident">start_index</span> <span class="op">=</span>
-                    <span class="ident">TextSize::try_from</span>(<span class="ident">start_location</span>.<span class="ident">column_number</span>.<span class="ident">to_zero_indexed</span>())
-                        .<span class="ident">expect</span>(<span class="string">&quot;integer overflow&quot;</span>);
-                <span class="kw">let</span> <span class="ident">end_index</span> <span class="op">=</span> <span class="ident">TextSize::of</span>(<span class="ident">line_text</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">TextRange::new</span>(<span class="ident">start_index</span>, <span class="ident">end_index</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">TextRange::new</span>(
+                    <span class="ident">start_index_relative_to_line</span>,
+                    <span class="ident">line_text</span>.<span class="ident">text_len</span>(),
+                ))
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_last_line</span> {
                 <span class="comment">// Last line in selection</span>
-                <span class="kw">let</span> <span class="ident">start_index</span> <span class="op">=</span> <span class="ident">TextSize::of</span>(<span class="ident">line_text</span>)
-                    .<span class="ident">checked_sub</span>(<span class="ident">TextSize::of</span>(<span class="ident">line_text</span>.<span class="ident">trim_start</span>()))
+                <span class="kw">let</span> <span class="ident">start_index</span> <span class="op">=</span> <span class="ident">line_text</span>
+                    .<span class="ident">text_len</span>()
+                    .<span class="ident">checked_sub</span>(<span class="ident">line_text</span>.<span class="ident">trim_start</span>().<span class="ident">text_len</span>())
                     <span class="comment">// SAFETY: The length of `line_text.trim_start()` should</span>
                     <span class="comment">// never be larger than `line_text` itself</span>
                     .<span class="ident">expect</span>(<span class="string">&quot;integer overflow&quot;</span>);
-                <span class="kw">let</span> <span class="ident">end_index</span> <span class="op">=</span> <span class="ident">TextSize::try_from</span>(<span class="ident">end_location</span>.<span class="ident">column_number</span>.<span class="ident">to_zero_indexed</span>())
-                    .<span class="ident">expect</span>(<span class="string">&quot;integer overflow&quot;</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">TextRange::new</span>(<span class="ident">start_index</span>, <span class="ident">end_index</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">TextRange::new</span>(<span class="ident">start_index</span>, <span class="ident">end_index_relative_to_line</span>))
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             };
@@ -1104,7 +1104,7 @@
                 .<span class="ident">get</span>(<span class="ident">line_index</span>)
                 .<span class="ident">cloned</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;failed despite previous check&quot;</span>)),
-            <span class="ident">Ordering::Equal</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">TextSize::of</span>(<span class="self">self</span>.<span class="ident">source</span>)),
+            <span class="ident">Ordering::Equal</span> =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">source</span>.<span class="ident">text_len</span>()),
             <span class="ident">Ordering::Greater</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(
                 <span class="ident">io::ErrorKind::InvalidInput</span>,
                 <span class="string">&quot;overflow error&quot;</span>,
@@ -1159,7 +1159,7 @@
 <span class="kw">fn</span> <span class="ident">column_index</span>(<span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">line_range</span>: <span class="ident">TextRange</span>, <span class="ident">byte_index</span>: <span class="ident">TextSize</span>) -&gt; <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">end_index</span> <span class="op">=</span> <span class="ident">std::cmp::min</span>(
         <span class="ident">byte_index</span>,
-        <span class="ident">std::cmp::min</span>(<span class="ident">line_range</span>.<span class="ident">end</span>(), <span class="ident">TextSize::of</span>(<span class="ident">source</span>)),
+        <span class="ident">std::cmp::min</span>(<span class="ident">line_range</span>.<span class="ident">end</span>(), <span class="ident">source</span>.<span class="ident">text_len</span>()),
     );
 
     (<span class="ident">usize::from</span>(<span class="ident">line_range</span>.<span class="ident">start</span>())..<span class="ident">usize::from</span>(<span class="ident">end_index</span>))

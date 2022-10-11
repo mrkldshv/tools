@@ -324,7 +324,6 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-<span id="327">327</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>, <span class="ident">collections::BTreeMap</span>};
 
 <span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">AstNode</span>, <span class="ident">Language</span>, <span class="ident">RawSyntaxKind</span>, <span class="ident">SyntaxKind</span>, <span class="ident">SyntaxNode</span>};
@@ -615,7 +614,6 @@
             <span class="comment">// if the query doesn&#39;t match</span>
             <span class="kw">let</span> <span class="ident">query_result</span> <span class="op">=</span>
                 <span class="op">&lt;</span><span class="ident">R::Query</span> <span class="kw">as</span> <span class="ident">Queryable</span><span class="op">&gt;</span><span class="ident">::unwrap_match</span>(<span class="ident">params</span>.<span class="ident">services</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>.<span class="ident">query</span>);
-
             <span class="kw">let</span> <span class="ident">ctx</span> <span class="op">=</span>
                 <span class="kw">match</span> <span class="ident">RuleContext::new</span>(<span class="kw-2">&amp;</span><span class="ident">query_result</span>, <span class="ident">params</span>.<span class="ident">root</span>, <span class="ident">params</span>.<span class="ident">services</span>, <span class="ident">params</span>.<span class="ident">options</span>)
                 {

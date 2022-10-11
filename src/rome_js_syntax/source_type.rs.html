@@ -241,6 +241,15 @@
 <span id="241">241</span>
 <span id="242">242</span>
 <span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 <span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
 
@@ -282,10 +291,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ModuleKind</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_script</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_script</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">ModuleKind::Script</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">ModuleKind::Module</span>)
     }
 }
@@ -301,10 +310,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">LanguageVariant</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_standard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_standard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">LanguageVariant::Standard</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_jsx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_jsx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">LanguageVariant::Jsx</span>)
     }
 }
@@ -320,11 +329,20 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Language</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_javascript</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_javascript</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Language::JavaScript</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_typescript</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_typescript</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Language::TypeScript</span> { .. })
+    }
+
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_definition_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(
+            <span class="self">self</span>,
+            <span class="ident">Language::TypeScript</span> {
+                <span class="ident">definition_file</span>: <span class="bool-val">true</span>
+            }
+        )
     }
 }
 
@@ -378,17 +396,17 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_module_kind</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">ModuleKind</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_module_kind</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">kind</span>: <span class="ident">ModuleKind</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">module_kind</span> <span class="op">=</span> <span class="ident">kind</span>;
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">LanguageVersion</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_version</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">LanguageVersion</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">version</span>;
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_variant</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">variant</span>: <span class="ident">LanguageVariant</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_variant</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">variant</span>: <span class="ident">LanguageVariant</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">variant</span> <span class="op">=</span> <span class="ident">variant</span>;
         <span class="self">self</span>
     }
@@ -409,7 +427,7 @@
         <span class="self">self</span>.<span class="ident">module_kind</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_module</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">module_kind</span>.<span class="ident">is_module</span>()
     }
 }

@@ -1332,6 +1332,19 @@
 <span id="1332">1332</span>
 <span id="1333">1333</span>
 <span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::lexer::TextSize</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{<span class="ident">expected_any</span>, <span class="ident">expected_node</span>, <span class="ident">ParserProgress</span>, <span class="ident">RecoveryResult</span>, <span class="ident">ToDiagnostic</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::state</span>::{<span class="ident">EnterAmbientContext</span>, <span class="ident">ExportDefaultItem</span>, <span class="ident">ExportDefaultItemKind</span>};
@@ -2083,8 +2096,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">parse_any_export_named_specifier</span>(<span class="ident">p</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Parser</span>) -&gt; <span class="ident">ParsedSyntax</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">p</span>.<span class="ident">cur</span>(), <span class="macro">T!</span>[<span class="kw">type</span>] <span class="op">|</span> <span class="macro">T!</span>[<span class="kw">as</span>] <span class="op">|</span> <span class="macro">T!</span>[<span class="ident">default</span>]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_nth_at_reference_identifier</span>(<span class="ident">p</span>, <span class="number">0</span>)
-    {
+    <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">p</span>.<span class="ident">cur</span>(), <span class="macro">T!</span>[<span class="kw">type</span>] <span class="op">|</span> <span class="macro">T!</span>[<span class="kw">as</span>] <span class="op">|</span> <span class="macro">T!</span>[<span class="ident">default</span>]) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_nth_at_literal_export_name</span>(<span class="ident">p</span>, <span class="number">0</span>) {
         <span class="kw">return</span> <span class="ident">Absent</span>;
     }
 
@@ -2112,17 +2124,27 @@
             <span class="ident">p</span>,
             <span class="ident">TextRange::new</span>(<span class="ident">p</span>.<span class="ident">cur_range</span>().<span class="ident">start</span>(), <span class="ident">p</span>.<span class="ident">cur_range</span>().<span class="ident">start</span>()),
         ));
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_nth_at_reference_identifier</span>(<span class="ident">p</span>, <span class="number">0</span>) {
+        <span class="ident">parse_reference_identifier</span>(<span class="ident">p</span>).<span class="ident">ok</span>();
     } <span class="kw">else</span> {
-        <span class="comment">// We need to parse &quot;default&quot; here and fail so the &quot;export ... from...&quot; rewind later works.</span>
-        <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">cur</span>() <span class="op">==</span> <span class="macro">T!</span>[<span class="ident">default</span>] {
-            <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">cur_range</span>();
-            <span class="ident">p</span>.<span class="ident">bump_any</span>();
-            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">p</span>
-                .<span class="ident">err_builder</span>(<span class="string">&quot;\&quot;default\&quot; can only be used with \&quot;export ... from ...\&quot;&quot;</span>)
-                .<span class="ident">primary</span>(<span class="ident">range</span>, <span class="string">&quot;&quot;</span>);
-            <span class="ident">p</span>.<span class="ident">error</span>(<span class="ident">err</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">parse_reference_identifier</span>(<span class="ident">p</span>).<span class="ident">or_add_diagnostic</span>(<span class="ident">p</span>, <span class="ident">expected_identifier</span>);
+        <span class="comment">// We need to parse &quot;default&quot; or any string literal here so the &quot;export ... from...&quot; rewind later works.</span>
+        <span class="kw">let</span> <span class="ident">is_string</span> <span class="op">=</span> <span class="macro">matches!</span>(<span class="ident">p</span>.<span class="ident">cur</span>(), <span class="ident">JS_STRING_LITERAL</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">export_name</span>) <span class="op">=</span>
+            <span class="ident">parse_literal_export_name</span>(<span class="ident">p</span>).<span class="ident">or_add_diagnostic</span>(<span class="ident">p</span>, <span class="ident">expected_identifier</span>)
+        {
+            <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_string</span> {
+                <span class="ident">p</span>.<span class="ident">err_builder</span>(
+                    <span class="string">&quot;A string literal cannot be used as an export binding without `from`.&quot;</span>,
+                )
+            } <span class="kw">else</span> {
+                <span class="ident">p</span>.<span class="ident">err_builder</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">&quot;\&quot;{}\&quot; can only be used with \&quot;export ... from ...\&quot;&quot;</span>,
+                    <span class="ident">export_name</span>.<span class="ident">text</span>(<span class="ident">p</span>)
+                ))
+            };
+
+            <span class="ident">p</span>.<span class="ident">error</span>(<span class="ident">error</span>.<span class="ident">primary</span>(<span class="ident">export_name</span>.<span class="ident">range</span>(<span class="ident">p</span>), <span class="string">&quot;&quot;</span>));
         }
     }
 
@@ -2268,6 +2290,10 @@
 <span class="comment">// export { default as &quot;b&quot; } from &quot;mod&quot;;</span>
 <span class="comment">// export { &quot;a&quot; as b } from &quot;mod&quot;;</span>
 <span class="comment">// export { a } from &quot;mod&quot; assert { type: &quot;json&quot; }</span>
+<span class="comment">// export { &quot;a&quot; } from &quot;./mod&quot;;</span>
+<span class="comment">// export {</span>
+<span class="comment">//      &quot;a&quot;</span>
+<span class="comment">// } from &quot;./mod&quot;;</span>
 <span class="comment">//</span>
 <span class="comment">// test_err export_named_from_clause_err</span>
 <span class="comment">// export { as b } from &quot;mod&quot;;</span>
