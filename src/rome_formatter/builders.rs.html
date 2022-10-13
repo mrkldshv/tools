@@ -2508,7 +2508,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StaticText</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span>) -&gt; <span class="ident">FormatResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="self">self</span>.<span class="ident">text</span> }))
+        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="self">self</span>.<span class="ident">text</span> })
     }
 }
 
@@ -2533,10 +2533,10 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DynamicText</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span>) -&gt; <span class="ident">FormatResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::Text</span>(<span class="ident">Text::Dynamic</span> {
+        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::DynamicText</span> {
             <span class="ident">text</span>: <span class="self">self</span>.<span class="ident">text</span>.<span class="ident">to_string</span>().<span class="ident">into_boxed_str</span>(),
             <span class="ident">source_position</span>: <span class="self">self</span>.<span class="ident">position</span>,
-        }))
+        })
     }
 }
 
@@ -2578,15 +2578,15 @@
                 <span class="kw">let</span> <span class="ident">relative_range</span> <span class="op">=</span> <span class="ident">range</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">text_range</span>().<span class="ident">start</span>();
                 <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token_text</span>().<span class="ident">slice</span>(<span class="ident">relative_range</span>);
 
-                <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::Text</span>(<span class="ident">Text::SyntaxTokenTextSlice</span> {
+                <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::SyntaxTokenTextSlice</span> {
                     <span class="ident">slice</span>,
                     <span class="ident">source_position</span>: <span class="self">self</span>.<span class="ident">start</span>,
-                }))
+                })
             }
-            <span class="ident">Cow::Owned</span>(<span class="ident">text</span>) =&gt; <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::Text</span>(<span class="ident">Text::Dynamic</span> {
+            <span class="ident">Cow::Owned</span>(<span class="ident">text</span>) =&gt; <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::DynamicText</span> {
                 <span class="ident">text</span>: <span class="ident">text</span>.<span class="ident">to_string</span>().<span class="ident">into_boxed_str</span>(),
                 <span class="ident">source_position</span>: <span class="self">self</span>.<span class="ident">start</span>,
-            })),
+            }),
         }
     }
 }
@@ -2620,10 +2620,10 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SyntaxTokenTextSlice</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span>) -&gt; <span class="ident">FormatResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::Text</span>(<span class="ident">Text::SyntaxTokenTextSlice</span> {
+        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::SyntaxTokenTextSlice</span> {
             <span class="ident">slice</span>: <span class="self">self</span>.<span class="ident">text</span>.<span class="ident">clone</span>(),
             <span class="ident">source_position</span>: <span class="self">self</span>.<span class="ident">source_position</span>,
-        }))
+        })
     }
 }
 

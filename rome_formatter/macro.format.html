@@ -13,9 +13,9 @@ Additional parameters passed get formatted by using their <a href="trait.Format.
 <span class="macro">assert_eq!</span>(
     <span class="ident">formatted</span>.<span class="ident">into_document</span>(),
     <span class="ident">Document::from</span>(<span class="macro">vec!</span>[
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;(&quot;</span> }),
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;a&quot;</span> }),
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;)&quot;</span> }),
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;(&quot;</span> },
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;a&quot;</span> },
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;)&quot;</span> },
     ])
 );</code></pre></div>
 </div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="rome_formatter" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

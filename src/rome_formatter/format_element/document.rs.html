@@ -710,6 +710,8 @@
 <span id="710">710</span>
 <span id="711">711</span>
 <span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::tag::Tag</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::format_element::tag::DedentMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude::tag::GroupMode</span>;
@@ -791,7 +793,9 @@
                         <span class="ident">enclosing</span>.<span class="ident">pop</span>();
                         <span class="kw">continue</span>;
                     }
-                    <span class="ident">FormatElement::Text</span>(<span class="ident">text</span>) =&gt; <span class="ident">text</span>.<span class="ident">contains</span>(<span class="string">&#39;\n&#39;</span>),
+                    <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span> } =&gt; <span class="ident">text</span>.<span class="ident">contains</span>(<span class="string">&#39;\n&#39;</span>),
+                    <span class="ident">FormatElement::DynamicText</span> { <span class="ident">text</span>, .. } =&gt; <span class="ident">text</span>.<span class="ident">contains</span>(<span class="string">&#39;\n&#39;</span>),
+                    <span class="ident">FormatElement::SyntaxTokenTextSlice</span> { <span class="ident">slice</span>, .. } =&gt; <span class="ident">slice</span>.<span class="ident">contains</span>(<span class="string">&#39;\n&#39;</span>),
                     <span class="ident">FormatElement::ExpandParent</span>
                     <span class="op">|</span> <span class="ident">FormatElement::Line</span>(<span class="ident">LineMode::Hard</span> <span class="op">|</span> <span class="ident">LineMode::Empty</span>) =&gt; <span class="bool-val">true</span>,
                     <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
@@ -901,7 +905,10 @@
             <span class="ident">first_element</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
             <span class="kw">match</span> <span class="ident">element</span> {
-                <span class="ident">element</span> @ <span class="ident">FormatElement::Space</span> <span class="op">|</span> <span class="ident">element</span> @ <span class="ident">FormatElement::Text</span>(<span class="kw">_</span>) =&gt; {
+                <span class="ident">element</span> @ <span class="ident">FormatElement::Space</span>
+                <span class="op">|</span> <span class="ident">element</span> @ <span class="ident">FormatElement::StaticText</span> { .. }
+                <span class="op">|</span> <span class="ident">element</span> @ <span class="ident">FormatElement::DynamicText</span> { .. }
+                <span class="op">|</span> <span class="ident">element</span> @ <span class="ident">FormatElement::SyntaxTokenTextSlice</span> { .. } =&gt; {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">in_text</span> {
                         <span class="macro">write!</span>(<span class="ident">f</span>, [<span class="ident">text</span>(<span class="string">&quot;\&quot;&quot;</span>)])<span class="question-mark">?</span>;
                     }
@@ -909,17 +916,14 @@
                     <span class="ident">in_text</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
                     <span class="kw">match</span> <span class="ident">element</span> {
-                        <span class="ident">FormatElement::Text</span>(<span class="kw">_</span>) =&gt; <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">element</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>,
                         <span class="ident">FormatElement::Space</span> =&gt; {
                             <span class="macro">write!</span>(<span class="ident">f</span>, [<span class="ident">text</span>(<span class="string">&quot; &quot;</span>)])<span class="question-mark">?</span>;
                         }
+                        <span class="ident">element</span> <span class="kw">if</span> <span class="ident">element</span>.<span class="ident">is_text</span>() =&gt; <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">element</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>,
                         <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                     }
 
-                    <span class="kw">let</span> <span class="ident">is_next_text</span> <span class="op">=</span> <span class="macro">matches!</span>(
-                        <span class="ident">iter</span>.<span class="ident">peek</span>(),
-                        <span class="prelude-val">Some</span>(<span class="ident">FormatElement::Space</span> <span class="op">|</span> <span class="ident">FormatElement::Text</span>(<span class="kw">_</span>))
-                    );
+                    <span class="kw">let</span> <span class="ident">is_next_text</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">peek</span>().<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">is_text</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">is_space</span>());
 
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">is_next_text</span> {
                         <span class="macro">write!</span>(<span class="ident">f</span>, [<span class="ident">text</span>(<span class="string">&quot;\&quot;&quot;</span>)])<span class="question-mark">?</span>;
@@ -1389,16 +1393,16 @@
         <span class="kw">use</span> <span class="ident">Tag</span>::<span class="kw-2">*</span>;
 
         <span class="kw">let</span> <span class="ident">document</span> <span class="op">=</span> <span class="ident">Document::from</span>(<span class="macro">vec!</span>[
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;[&quot;</span> }),
+            <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;[&quot;</span> },
             <span class="ident">FormatElement::Tag</span>(<span class="ident">StartGroup</span>(<span class="ident">tag::Group::new</span>())),
             <span class="ident">FormatElement::Tag</span>(<span class="ident">StartIndent</span>),
             <span class="ident">FormatElement::Line</span>(<span class="ident">LineMode::Soft</span>),
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;a&quot;</span> }),
+            <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;a&quot;</span> },
             <span class="comment">// Close group instead of indent</span>
             <span class="ident">FormatElement::Tag</span>(<span class="ident">EndGroup</span>),
             <span class="ident">FormatElement::Line</span>(<span class="ident">LineMode::Soft</span>),
             <span class="ident">FormatElement::Tag</span>(<span class="ident">EndIndent</span>),
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;]&quot;</span> }),
+            <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;]&quot;</span> },
             <span class="comment">// End tag without start</span>
             <span class="ident">FormatElement::Tag</span>(<span class="ident">EndIndent</span>),
             <span class="comment">// Start tag without an end</span>

@@ -560,9 +560,9 @@
 <span class="doccomment">/// assert_eq!(</span>
 <span class="doccomment">///     buffer.into_vec(),</span>
 <span class="doccomment">///     vec![</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;Hello&quot; }),</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;Hello&quot; },</span>
 <span class="doccomment">///         FormatElement::Space,</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;World&quot; }),</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;World&quot; },</span>
 <span class="doccomment">///     ]</span>
 <span class="doccomment">///  );</span>
 <span class="doccomment">/// #  Ok(())</span>
@@ -591,7 +591,7 @@
 <span class="doccomment">/// dbg_write!(buffer, [text(&quot;Hello&quot;)])?;</span>
 <span class="doccomment">/// // ^-- prints: [src/main.rs:7][0] = StaticToken(&quot;Hello&quot;)</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(buffer.into_vec(), vec![FormatElement::Text(Text::Static { text: &quot;Hello&quot; })]);</span>
+<span class="doccomment">/// assert_eq!(buffer.into_vec(), vec![FormatElement::StaticText { text: &quot;Hello&quot; }]);</span>
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
@@ -633,9 +633,9 @@
 <span class="doccomment">/// assert_eq!(</span>
 <span class="doccomment">///     formatted.into_document(),</span>
 <span class="doccomment">///     Document::from(vec![</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;(&quot; }),</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;a&quot; }),</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;)&quot; }),</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;(&quot; },</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;a&quot; },</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;)&quot; },</span>
 <span class="doccomment">///     ])</span>
 <span class="doccomment">/// );</span>
 <span class="doccomment">/// ```</span>
@@ -859,7 +859,7 @@
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">buffer</span>.<span class="ident">into_vec</span>(),
-            <span class="macro">vec!</span>[<span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;test&quot;</span> })]
+            <span class="macro">vec!</span>[<span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;test&quot;</span> }]
         );
     }
 
@@ -877,11 +877,11 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">buffer</span>.<span class="ident">into_vec</span>(),
             <span class="macro">vec!</span>[
-                <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;a&quot;</span> }),
+                <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;a&quot;</span> },
                 <span class="ident">FormatElement::Space</span>,
-                <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;simple&quot;</span> }),
+                <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;simple&quot;</span> },
                 <span class="ident">FormatElement::Space</span>,
-                <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;test&quot;</span> })
+                <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;test&quot;</span> }
             ]
         );
     }

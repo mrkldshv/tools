@@ -1212,6 +1212,14 @@
 <span id="1212">1212</span>
 <span id="1213">1213</span>
 <span id="1214">1214</span>
+<span id="1215">1215</span>
+<span id="1216">1216</span>
+<span id="1217">1217</span>
+<span id="1218">1218</span>
+<span id="1219">1219</span>
+<span id="1220">1220</span>
+<span id="1221">1221</span>
+<span id="1222">1222</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::js::auxiliary::initializer_clause::FormatJsInitializerClauseOptions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::js::expressions::arrow_function_expression::FormatJsArrowFunctionExpressionOptions</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
@@ -1230,7 +1238,7 @@
     <span class="ident">TsAnyVariableAnnotation</span>, <span class="ident">TsIdentifierBinding</span>, <span class="ident">TsPropertySignatureClassMember</span>,
     <span class="ident">TsPropertySignatureClassMemberFields</span>, <span class="ident">TsType</span>, <span class="ident">TsTypeAliasDeclaration</span>, <span class="ident">TsTypeArguments</span>,
 };
-<span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">declare_node_union</span>, <span class="ident">AstNode</span>, <span class="ident">SyntaxResult</span>};
+<span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">declare_node_union</span>, <span class="ident">AstNode</span>, <span class="ident">SyntaxNodeOptionExt</span>, <span class="ident">SyntaxResult</span>};
 <span class="kw">use</span> <span class="ident">std::iter</span>;
 
 <span class="macro">declare_node_union!</span> {
@@ -1264,69 +1272,78 @@
 }
 
 <span class="kw">impl</span> <span class="ident">AnyObjectPattern</span> {
-    <span class="kw">fn</span> <span class="ident">is_complex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SyntaxResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Determines if this is a complex pattern. A pattern is considered complex if it has more than 2 properties</span>
+    <span class="doccomment">/// and any property:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * is a shorthand property with an initializer</span>
+    <span class="doccomment">/// * is a non-shorthand property</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```javascript</span>
+    <span class="doccomment">/// let { a, b, c = &quot;test&quot;} = ...</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Is considered a complex binding because it has three properties and a shorthand property with an initializer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```javascript</span>
+    <span class="doccomment">/// let { a, b, c: d } = ...</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Is considered a complex binding because it has three properties and a non-shorthand property</span>
+    <span class="doccomment">///</span>
+    <span class="kw">fn</span> <span class="ident">is_complex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">AnyObjectPattern::JsObjectAssignmentPattern</span>(<span class="ident">assignment_pattern</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">properties_len</span> <span class="op">=</span> <span class="ident">assignment_pattern</span>.<span class="ident">properties</span>().<span class="ident">len</span>();
-                <span class="kw">if</span> <span class="ident">properties_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">2</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+                <span class="kw">use</span> <span class="ident">JsAnyObjectAssignmentPatternMember</span>::<span class="kw-2">*</span>;
+
+                <span class="kw">if</span> <span class="ident">assignment_pattern</span>.<span class="ident">properties</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">2</span> {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
-                <span class="comment">// A binding is complex when we have at least one [JsObjectBindingPatternProperty]</span>
-                <span class="comment">// e.g. a = { a: c = f } = a</span>
-                <span class="comment">// The `c = f` will trigger the complex binding</span>
-                <span class="kw">let</span> <span class="ident">has_at_least_a_complex_binding</span> <span class="op">=</span> <span class="ident">assignment_pattern</span>
+
+                <span class="ident">assignment_pattern</span>
                     .<span class="ident">properties</span>()
                     .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">ok</span>())
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">property</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">property</span> <span class="op">=</span> <span class="ident">property</span>;
-
-                        <span class="macro">matches!</span>(
-                            <span class="ident">property</span>,
-                            <span class="prelude-val">Some</span>(
-                                <span class="ident">JsAnyObjectAssignmentPatternMember::JsObjectAssignmentPatternProperty</span>(<span class="kw">_</span>),
-                            )
-                        )
-                    });
-                <span class="prelude-val">Ok</span>(<span class="ident">has_at_least_a_complex_binding</span>)
+                    .<span class="ident">flatten</span>()
+                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">property</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">property</span> {
+                        <span class="ident">JsObjectAssignmentPatternProperty</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+                        <span class="ident">JsObjectAssignmentPatternShorthandProperty</span>(<span class="ident">short</span>) =&gt; <span class="ident">short</span>.<span class="ident">init</span>().<span class="ident">is_some</span>(),
+                        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+                    })
             }
             <span class="ident">AnyObjectPattern::JsObjectBindingPattern</span>(<span class="ident">binding_pattern</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">properties_len</span> <span class="op">=</span> <span class="ident">binding_pattern</span>.<span class="ident">properties</span>().<span class="ident">len</span>();
-                <span class="kw">if</span> <span class="ident">properties_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">2</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
+                <span class="kw">use</span> <span class="ident">JsAnyObjectBindingPatternMember</span>::<span class="kw-2">*</span>;
+
+                <span class="kw">if</span> <span class="ident">binding_pattern</span>.<span class="ident">properties</span>().<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">2</span> {
+                    <span class="kw">return</span> <span class="bool-val">false</span>;
                 }
-                <span class="comment">// A binding is complex when we have at least one [JsObjectBindingPatternProperty]</span>
-                <span class="comment">// e.g. const a = { a: c = f } = a</span>
-                <span class="comment">// The `c = f` will trigger the complex binding</span>
-                <span class="kw">let</span> <span class="ident">has_at_least_a_complex_binding</span> <span class="op">=</span> <span class="ident">binding_pattern</span>
+
+                <span class="ident">binding_pattern</span>
                     .<span class="ident">properties</span>()
                     .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">ok</span>())
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">property</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">property</span> <span class="op">=</span> <span class="ident">property</span>;
-
-                        <span class="macro">matches!</span>(
-                            <span class="ident">property</span>,
-                            <span class="prelude-val">Some</span>(
-                                <span class="ident">JsAnyObjectBindingPatternMember::JsObjectBindingPatternProperty</span>(<span class="kw">_</span>),
-                            )
-                        )
-                    });
-                <span class="prelude-val">Ok</span>(<span class="ident">has_at_least_a_complex_binding</span>)
+                    .<span class="ident">flatten</span>()
+                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">property</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">property</span> {
+                        <span class="ident">JsObjectBindingPatternProperty</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+                        <span class="ident">JsObjectBindingPatternShorthandProperty</span>(<span class="ident">member</span>) =&gt; <span class="ident">member</span>.<span class="ident">init</span>().<span class="ident">is_some</span>(),
+                        <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+                    })
             }
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">LeftAssignmentLike</span> {
-    <span class="kw">fn</span> <span class="ident">as_object_pattern</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AnyObjectPattern</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">into_object_pattern</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AnyObjectPattern</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident">JsAnyAssignmentPattern</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="ident">JsAnyBindingPattern</span>::<span class="kw-2">*</span>;
+
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">LeftAssignmentLike::JsAnyAssignmentPattern</span>(
-                <span class="ident">JsAnyAssignmentPattern::JsObjectAssignmentPattern</span>(<span class="ident">node</span>),
-            ) =&gt; <span class="prelude-val">Some</span>(<span class="ident">AnyObjectPattern::from</span>(<span class="ident">node</span>.<span class="ident">clone</span>())),
-            <span class="ident">LeftAssignmentLike::JsAnyBindingPattern</span>(
-                <span class="ident">JsAnyBindingPattern::JsObjectBindingPattern</span>(<span class="ident">node</span>),
-            ) =&gt; <span class="prelude-val">Some</span>(<span class="ident">AnyObjectPattern::from</span>(<span class="ident">node</span>.<span class="ident">clone</span>())),
+            <span class="ident">LeftAssignmentLike::JsAnyAssignmentPattern</span>(<span class="ident">JsObjectAssignmentPattern</span>(<span class="ident">node</span>)) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="ident">AnyObjectPattern::from</span>(<span class="ident">node</span>))
+            }
+            <span class="ident">LeftAssignmentLike::JsAnyBindingPattern</span>(<span class="ident">JsObjectBindingPattern</span>(<span class="ident">node</span>)) =&gt; {
+                <span class="prelude-val">Some</span>(<span class="ident">AnyObjectPattern::from</span>(<span class="ident">node</span>))
+            }
             <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -1935,7 +1952,7 @@
                         <span class="ident">JsSyntaxKind::JS_ASSIGNMENT_EXPRESSION</span>
                             <span class="op">|</span> <span class="ident">JsSyntaxKind::JS_INITIALIZER_CLAUSE</span>
                     ) {
-                        <span class="kw">let</span> <span class="ident">great_parent_kind</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">parent</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">kind</span>());
+                        <span class="kw">let</span> <span class="ident">great_parent_kind</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">parent</span>().<span class="ident">kind</span>();
                         <span class="comment">// Finally, we check the great parent.</span>
                         <span class="comment">// The great parent triggers the eligibility when</span>
                         <span class="comment">// - the current node that we were inspecting is not a &quot;tail&quot;</span>
@@ -2022,9 +2039,8 @@
     <span class="kw">fn</span> <span class="ident">should_break_left_hand_side</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SyntaxResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">is_complex_destructuring</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">left</span>()<span class="question-mark">?</span>
-            .<span class="ident">as_object_pattern</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pattern</span><span class="op">|</span> <span class="ident">pattern</span>.<span class="ident">is_complex</span>().<span class="ident">ok</span>())
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
+            .<span class="ident">into_object_pattern</span>()
+            .<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">pattern</span><span class="op">|</span> <span class="ident">pattern</span>.<span class="ident">is_complex</span>());
 
         <span class="kw">let</span> <span class="ident">has_complex_type_annotation</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">annotation</span>()

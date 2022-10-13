@@ -17,9 +17,9 @@ generally this comes from an implementation of the <a href="trait.Buffer.html" t
 <span class="macro">assert_eq!</span>(
     <span class="ident">buffer</span>.<span class="ident">into_vec</span>(),
     <span class="macro">vec!</span>[
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;Hello&quot;</span> }),
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;Hello&quot;</span> },
         <span class="ident">FormatElement::Space</span>,
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;World&quot;</span> }),
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;World&quot;</span> },
     ]
  );</code></pre></div>
 </div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="rome_formatter" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

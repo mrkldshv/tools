@@ -743,14 +743,14 @@
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use rome_formatter::{Buffer, FormatElement, FormatState, SimpleFormatContext, Text, VecBuffer};</span>
+    <span class="doccomment">/// use rome_formatter::{Buffer, FormatElement, FormatState, SimpleFormatContext, VecBuffer};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut state = FormatState::new(SimpleFormatContext::default());</span>
     <span class="doccomment">/// let mut buffer = VecBuffer::new(&amp;mut state);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// buffer.write_element(FormatElement::Text(Text::Static { text: &quot;test&quot;})).unwrap();</span>
+    <span class="doccomment">/// buffer.write_element(FormatElement::StaticText { text: &quot;test&quot;}).unwrap();</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(buffer.into_vec(), vec![FormatElement::Text(Text::Static { text: &quot;test&quot; })]);</span>
+    <span class="doccomment">/// assert_eq!(buffer.into_vec(), vec![FormatElement::StaticText { text: &quot;test&quot; }]);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="kw">fn</span> <span class="ident">write_element</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">element</span>: <span class="ident">FormatElement</span>) -&gt; <span class="ident">FormatResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
@@ -769,14 +769,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use rome_formatter::prelude::*;</span>
-    <span class="doccomment">/// use rome_formatter::{Buffer, FormatState, SimpleFormatContext, Text, VecBuffer, format_args};</span>
+    <span class="doccomment">/// use rome_formatter::{Buffer, FormatState, SimpleFormatContext, VecBuffer, format_args};</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut state = FormatState::new(SimpleFormatContext::default());</span>
     <span class="doccomment">/// let mut buffer = VecBuffer::new(&amp;mut state);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// buffer.write_fmt(format_args!(text(&quot;Hello World&quot;))).unwrap();</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(buffer.into_vec(), vec![FormatElement::Text(Text::Static { text: &quot;Hello World&quot; })]);</span>
+    <span class="doccomment">/// assert_eq!(buffer.into_vec(), vec![FormatElement::StaticText{ text: &quot;Hello World&quot; }]);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">write_fmt</span>(<span class="kw-2">mut</span> <span class="self">self</span>: <span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">arguments</span>: <span class="ident">Arguments</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Context</span><span class="op">&gt;</span>) -&gt; <span class="ident">FormatResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">write</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">arguments</span>)
@@ -1189,10 +1189,10 @@ Make sure that you take and restore the snapshot in order and that this snapshot
 <span class="doccomment">/// assert_eq!(</span>
 <span class="doccomment">///     formatted.document().as_ref(),</span>
 <span class="doccomment">///     &amp;[</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;The next soft line or space gets replaced by a space&quot; }),</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;The next soft line or space gets replaced by a space&quot; },</span>
 <span class="doccomment">///         FormatElement::Space,</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;and the line here&quot; }),</span>
-<span class="doccomment">///         FormatElement::Text(Text::Static { text: &quot;is removed entirely.&quot; })</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;and the line here&quot; },</span>
+<span class="doccomment">///         FormatElement::StaticText { text: &quot;is removed entirely.&quot; }</span>
 <span class="doccomment">///     ]</span>
 <span class="doccomment">/// );</span>
 <span class="doccomment">///</span>
@@ -1358,10 +1358,10 @@ Make sure that you take and restore the snapshot in order and that this snapshot
     <span class="doccomment">///     assert_eq!(</span>
     <span class="doccomment">///         recorded.deref(),</span>
     <span class="doccomment">///         &amp;[</span>
-    <span class="doccomment">///             FormatElement::Text(Text::Static{ text: &quot;A&quot; }),</span>
-    <span class="doccomment">///             FormatElement::Text(Text::Static{ text: &quot;B&quot; }),</span>
-    <span class="doccomment">///             FormatElement::Text(Text::Static{ text: &quot;C&quot; }),</span>
-    <span class="doccomment">///             FormatElement::Text(Text::Static{ text: &quot;D&quot; })</span>
+    <span class="doccomment">///             FormatElement::StaticText{ text: &quot;A&quot; },</span>
+    <span class="doccomment">///             FormatElement::StaticText{ text: &quot;B&quot; },</span>
+    <span class="doccomment">///             FormatElement::StaticText{ text: &quot;C&quot; },</span>
+    <span class="doccomment">///             FormatElement::StaticText{ text: &quot;D&quot; }</span>
     <span class="doccomment">///         ]</span>
     <span class="doccomment">///     );</span>
     <span class="doccomment">///</span>

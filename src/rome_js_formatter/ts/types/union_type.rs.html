@@ -168,6 +168,7 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
+<span id="171">171</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parentheses::NeedsParentheses</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>::{
@@ -177,6 +178,7 @@
 <span class="kw">use</span> <span class="ident">rome_formatter</span>::{<span class="ident">format_args</span>, <span class="ident">write</span>, <span class="ident">Buffer</span>};
 <span class="kw">use</span> <span class="ident">rome_js_syntax</span>::{<span class="ident">JsSyntaxKind</span>, <span class="ident">JsSyntaxToken</span>, <span class="ident">TsTupleTypeElementList</span>, <span class="ident">TsUnionType</span>};
 <span class="kw">use</span> <span class="ident">rome_js_syntax</span>::{<span class="ident">JsSyntaxNode</span>, <span class="ident">TsUnionTypeFields</span>};
+<span class="kw">use</span> <span class="ident">rome_rowan::SyntaxNodeOptionExt</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FormatTsUnionType</span>;
@@ -209,7 +211,7 @@
         <span class="kw">let</span> <span class="ident">has_leading_comments</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">comments</span>().<span class="ident">has_leading_comments</span>(<span class="ident">node</span>.<span class="ident">syntax</span>());
 
         <span class="kw">let</span> <span class="ident">should_indent</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">parent_kind</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">kind</span>());
+            <span class="kw">let</span> <span class="ident">parent_kind</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>().<span class="ident">kind</span>();
 
             <span class="comment">// These parents have indent for their content, so we don&#39;t need to indent here</span>
             <span class="op">!</span><span class="kw">match</span> <span class="ident">parent_kind</span> {

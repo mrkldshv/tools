@@ -572,6 +572,8 @@
 <span id="572">572</span>
 <span id="573">573</span>
 <span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Generated file, do not edit by hand, see `xtask/codegen`</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ConfigurationError</span>, <span class="ident">RomeError</span>, <span class="ident">RuleConfiguration</span>};
@@ -965,6 +967,7 @@
     <span class="ident">no_children_prop</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">no_dangerously_set_inner_html</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">no_dangerously_set_inner_html_with_children</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
+    <span class="ident">no_explicit_any</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">no_new_symbol</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">no_positive_tabindex</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">no_render_return_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
@@ -983,12 +986,13 @@
 }
 <span class="kw">impl</span> <span class="ident">Nursery</span> {
     <span class="kw">const</span> <span class="ident">CATEGORY_NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;nursery&quot;</span>;
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">CATEGORY_RULES</span>: [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>; <span class="number">20</span>] <span class="op">=</span> [
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">CATEGORY_RULES</span>: [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>; <span class="number">21</span>] <span class="op">=</span> [
         <span class="string">&quot;noArrayIndexKey&quot;</span>,
         <span class="string">&quot;noAutofocus&quot;</span>,
         <span class="string">&quot;noChildrenProp&quot;</span>,
         <span class="string">&quot;noDangerouslySetInnerHtml&quot;</span>,
         <span class="string">&quot;noDangerouslySetInnerHtmlWithChildren&quot;</span>,
+        <span class="string">&quot;noExplicitAny&quot;</span>,
         <span class="string">&quot;noNewSymbol&quot;</span>,
         <span class="string">&quot;noPositiveTabindex&quot;</span>,
         <span class="string">&quot;noRenderReturnValue&quot;</span>,

@@ -1632,6 +1632,21 @@
 <span id="1632">1632</span>
 <span id="1633">1633</span>
 <span id="1634">1634</span>
+<span id="1635">1635</span>
+<span id="1636">1636</span>
+<span id="1637">1637</span>
+<span id="1638">1638</span>
+<span id="1639">1639</span>
+<span id="1640">1640</span>
+<span id="1641">1641</span>
+<span id="1642">1642</span>
+<span id="1643">1643</span>
+<span id="1644">1644</span>
+<span id="1645">1645</span>
+<span id="1646">1646</span>
+<span id="1647">1647</span>
+<span id="1648">1648</span>
+<span id="1649">1649</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">call_stack</span>;
 <span class="kw">mod</span> <span class="ident">line_suffixes</span>;
 <span class="kw">mod</span> <span class="ident">printer_options</span>;
@@ -1728,64 +1743,15 @@
                 }
             }
 
-            <span class="ident">FormatElement::Text</span>(<span class="ident">token</span>) =&gt; {
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_indent</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">let</span> (<span class="ident">indent_char</span>, <span class="ident">repeat_count</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">indent_style</span>() {
-                        <span class="ident">IndentStyle::Tab</span> =&gt; (<span class="string">&#39;\t&#39;</span>, <span class="number">1</span>),
-                        <span class="ident">IndentStyle::Space</span>(<span class="ident">count</span>) =&gt; (<span class="string">&#39; &#39;</span>, <span class="ident">count</span>),
-                    };
-
-                    <span class="kw">let</span> <span class="ident">indent</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_indent</span>);
-                    <span class="kw">let</span> <span class="ident">total_indent_char_count</span> <span class="op">=</span> <span class="ident">indent</span>.<span class="ident">level</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="ident">repeat_count</span> <span class="kw">as</span> <span class="ident">usize</span>;
-
-                    <span class="self">self</span>.<span class="ident">state</span>
-                        .<span class="ident">buffer</span>
-                        .<span class="ident">reserve</span>(<span class="ident">total_indent_char_count</span> <span class="op">+</span> <span class="ident">indent</span>.<span class="ident">align</span>() <span class="kw">as</span> <span class="ident">usize</span>);
-
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">total_indent_char_count</span> {
-                        <span class="self">self</span>.<span class="ident">print_char</span>(<span class="ident">indent_char</span>);
-                    }
-
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">indent</span>.<span class="ident">align</span>() {
-                        <span class="self">self</span>.<span class="ident">print_char</span>(<span class="string">&#39; &#39;</span>);
-                    }
-                }
-
-                <span class="comment">// Print pending spaces</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> {
-                    <span class="self">self</span>.<span class="ident">print_str</span>(<span class="string">&quot; &quot;</span>);
-                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                }
-
-                <span class="comment">// Insert source map markers before and after the token</span>
-                <span class="comment">//</span>
-                <span class="comment">// If the token has source position information the start marker</span>
-                <span class="comment">// will use the start position of the original token, and the end</span>
-                <span class="comment">// marker will use that position + the text length of the token</span>
-                <span class="comment">//</span>
-                <span class="comment">// If the token has no source position (was created by the formatter)</span>
-                <span class="comment">// both the start and end marker will use the last known position</span>
-                <span class="comment">// in the input source (from state.source_position)</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>) <span class="op">=</span> <span class="ident">token</span>.<span class="ident">source_position</span>() {
-                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">source</span>;
-                }
-
-                <span class="self">self</span>.<span class="ident">push_marker</span>(<span class="ident">SourceMarker</span> {
-                    <span class="ident">source</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span>,
-                    <span class="ident">dest</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">text_len</span>(),
-                });
-
-                <span class="self">self</span>.<span class="ident">print_str</span>(<span class="ident">token</span>);
-
-                <span class="kw">if</span> <span class="ident">token</span>.<span class="ident">source_position</span>().<span class="ident">is_some</span>() {
-                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span> <span class="op">+</span><span class="op">=</span> <span class="ident">TextSize::of</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">token</span>);
-                }
-
-                <span class="self">self</span>.<span class="ident">push_marker</span>(<span class="ident">SourceMarker</span> {
-                    <span class="ident">source</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span>,
-                    <span class="ident">dest</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">text_len</span>(),
-                });
-            }
+            <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span> } =&gt; <span class="self">self</span>.<span class="ident">print_text</span>(<span class="ident">text</span>, <span class="prelude-val">None</span>),
+            <span class="ident">FormatElement::DynamicText</span> {
+                <span class="ident">text</span>,
+                <span class="ident">source_position</span>,
+            } =&gt; <span class="self">self</span>.<span class="ident">print_text</span>(<span class="ident">text</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">source_position</span>)),
+            <span class="ident">FormatElement::SyntaxTokenTextSlice</span> {
+                <span class="ident">slice</span>,
+                <span class="ident">source_position</span>,
+            } =&gt; <span class="self">self</span>.<span class="ident">print_text</span>(<span class="ident">slice</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">source_position</span>)),
 
             <span class="ident">FormatElement::Line</span>(<span class="ident">line_mode</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">mode</span>().<span class="ident">is_flat</span>()
@@ -1959,6 +1925,65 @@
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">measure</span>.<span class="ident">fits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">AllPredicate</span>);
         <span class="ident">measure</span>.<span class="ident">finish</span>();
         <span class="ident">result</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">print_text</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">source_position</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TextSize</span><span class="op">&gt;</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_indent</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">let</span> (<span class="ident">indent_char</span>, <span class="ident">repeat_count</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">indent_style</span>() {
+                <span class="ident">IndentStyle::Tab</span> =&gt; (<span class="string">&#39;\t&#39;</span>, <span class="number">1</span>),
+                <span class="ident">IndentStyle::Space</span>(<span class="ident">count</span>) =&gt; (<span class="string">&#39; &#39;</span>, <span class="ident">count</span>),
+            };
+
+            <span class="kw">let</span> <span class="ident">indent</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_indent</span>);
+            <span class="kw">let</span> <span class="ident">total_indent_char_count</span> <span class="op">=</span> <span class="ident">indent</span>.<span class="ident">level</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="ident">repeat_count</span> <span class="kw">as</span> <span class="ident">usize</span>;
+
+            <span class="self">self</span>.<span class="ident">state</span>
+                .<span class="ident">buffer</span>
+                .<span class="ident">reserve</span>(<span class="ident">total_indent_char_count</span> <span class="op">+</span> <span class="ident">indent</span>.<span class="ident">align</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+
+            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">total_indent_char_count</span> {
+                <span class="self">self</span>.<span class="ident">print_char</span>(<span class="ident">indent_char</span>);
+            }
+
+            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">indent</span>.<span class="ident">align</span>() {
+                <span class="self">self</span>.<span class="ident">print_char</span>(<span class="string">&#39; &#39;</span>);
+            }
+        }
+
+        <span class="comment">// Print pending spaces</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> {
+            <span class="self">self</span>.<span class="ident">print_str</span>(<span class="string">&quot; &quot;</span>);
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        }
+
+        <span class="comment">// Insert source map markers before and after the token</span>
+        <span class="comment">//</span>
+        <span class="comment">// If the token has source position information the start marker</span>
+        <span class="comment">// will use the start position of the original token, and the end</span>
+        <span class="comment">// marker will use that position + the text length of the token</span>
+        <span class="comment">//</span>
+        <span class="comment">// If the token has no source position (was created by the formatter)</span>
+        <span class="comment">// both the start and end marker will use the last known position</span>
+        <span class="comment">// in the input source (from state.source_position)</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>) <span class="op">=</span> <span class="ident">source_position</span> {
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span> <span class="op">=</span> <span class="ident">source</span>;
+        }
+
+        <span class="self">self</span>.<span class="ident">push_marker</span>(<span class="ident">SourceMarker</span> {
+            <span class="ident">source</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span>,
+            <span class="ident">dest</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">text_len</span>(),
+        });
+
+        <span class="self">self</span>.<span class="ident">print_str</span>(<span class="ident">text</span>);
+
+        <span class="kw">if</span> <span class="ident">source_position</span>.<span class="ident">is_some</span>() {
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span> <span class="op">+</span><span class="op">=</span> <span class="ident">text</span>.<span class="ident">text_len</span>();
+        }
+
+        <span class="self">self</span>.<span class="ident">push_marker</span>(<span class="ident">SourceMarker</span> {
+            <span class="ident">source</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">source_position</span>,
+            <span class="ident">dest</span>: <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">buffer</span>.<span class="ident">text_len</span>(),
+        });
     }
 
     <span class="kw">fn</span> <span class="ident">push_marker</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">marker</span>: <span class="ident">SourceMarker</span>) {
@@ -2623,37 +2648,9 @@
                 }
             }
 
-            <span class="ident">FormatElement::Text</span>(<span class="ident">token</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">indent</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_indent</span>);
-                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">indent</span>.<span class="ident">level</span>() <span class="kw">as</span> <span class="ident">usize</span>
-                    <span class="op">*</span> <span class="self">self</span>.<span class="ident">options</span>().<span class="ident">indent_width</span>() <span class="kw">as</span> <span class="ident">usize</span>
-                    <span class="op">+</span> <span class="ident">indent</span>.<span class="ident">align</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> {
-                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                }
-
-                <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">token</span>.<span class="ident">chars</span>() {
-                    <span class="kw">let</span> <span class="ident">char_width</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">c</span> {
-                        <span class="string">&#39;\t&#39;</span> =&gt; <span class="self">self</span>.<span class="ident">options</span>().<span class="ident">tab_width</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                        <span class="string">&#39;\n&#39;</span> =&gt; {
-                            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">must_be_flat</span> {
-                                <span class="ident">Fits::No</span>
-                            } <span class="kw">else</span> {
-                                <span class="ident">Fits::Yes</span>
-                            });
-                        }
-                        <span class="ident">c</span> =&gt; <span class="ident">c</span>.<span class="ident">width</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>),
-                    };
-                    <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">char_width</span>;
-                }
-
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">options</span>().<span class="ident">print_width</span>.<span class="ident">into</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Fits::No</span>);
-                }
-
-                <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            }
+            <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span> } =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">fits_text</span>(<span class="ident">text</span>)),
+            <span class="ident">FormatElement::DynamicText</span> { <span class="ident">text</span>, .. } =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">fits_text</span>(<span class="ident">text</span>)),
+            <span class="ident">FormatElement::SyntaxTokenTextSlice</span> { <span class="ident">slice</span>, .. } =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">fits_text</span>(<span class="ident">slice</span>)),
 
             <span class="ident">FormatElement::LineSuffixBoundary</span> =&gt; {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">has_line_suffix</span> {
@@ -2787,6 +2784,39 @@
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">Fits::Maybe</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">fits_text</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Fits</span> {
+        <span class="kw">let</span> <span class="ident">indent</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_indent</span>);
+        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">indent</span>.<span class="ident">level</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">options</span>().<span class="ident">indent_width</span>() <span class="kw">as</span> <span class="ident">usize</span>
+            <span class="op">+</span> <span class="ident">indent</span>.<span class="ident">align</span>() <span class="kw">as</span> <span class="ident">usize</span>;
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> {
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+
+        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">text</span>.<span class="ident">chars</span>() {
+            <span class="kw">let</span> <span class="ident">char_width</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">c</span> {
+                <span class="string">&#39;\t&#39;</span> =&gt; <span class="self">self</span>.<span class="ident">options</span>().<span class="ident">tab_width</span> <span class="kw">as</span> <span class="ident">usize</span>,
+                <span class="string">&#39;\n&#39;</span> =&gt; {
+                    <span class="kw">return</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">must_be_flat</span> {
+                        <span class="ident">Fits::No</span>
+                    } <span class="kw">else</span> {
+                        <span class="ident">Fits::Yes</span>
+                    };
+                }
+                <span class="ident">c</span> =&gt; <span class="ident">c</span>.<span class="ident">width</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>),
+            };
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">char_width</span>;
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">line_width</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">options</span>().<span class="ident">print_width</span>.<span class="ident">into</span>() {
+            <span class="kw">return</span> <span class="ident">Fits::No</span>;
+        }
+
+        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">pending_space</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+        <span class="ident">Fits::Maybe</span>
     }
 
     <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {

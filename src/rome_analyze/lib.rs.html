@@ -716,6 +716,14 @@
 <span id="716">716</span>
 <span id="717">717</span>
 <span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">deny</span>(<span class="ident">rustdoc::broken_intra_doc_links</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../CONTRIBUTING.md&quot;</span>)]</span>
 
@@ -743,7 +751,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::options</span>::{<span class="ident">AnalyzerConfiguration</span>, <span class="ident">AnalyzerOptions</span>, <span class="ident">AnalyzerRules</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query</span>::{<span class="ident">Ast</span>, <span class="ident">QueryKey</span>, <span class="ident">QueryMatch</span>, <span class="ident">Queryable</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::registry</span>::{
-    <span class="ident">LanguageRoot</span>, <span class="ident">Phase</span>, <span class="ident">Phases</span>, <span class="ident">RegistryRuleMetadata</span>, <span class="ident">RuleRegistry</span>, <span class="ident">RuleSuppressions</span>,
+    <span class="ident">LanguageRoot</span>, <span class="ident">MetadataRegistry</span>, <span class="ident">Phase</span>, <span class="ident">Phases</span>, <span class="ident">RegistryRuleMetadata</span>, <span class="ident">RegistryVisitor</span>,
+    <span class="ident">RuleRegistry</span>, <span class="ident">RuleRegistryBuilder</span>, <span class="ident">RuleSuppressions</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rule</span>::{
     <span class="ident">CategoryLanguage</span>, <span class="ident">GroupCategory</span>, <span class="ident">GroupLanguage</span>, <span class="ident">Rule</span>, <span class="ident">RuleAction</span>, <span class="ident">RuleDiagnostic</span>, <span class="ident">RuleGroup</span>,
@@ -775,6 +784,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Analyzer</span><span class="op">&lt;</span><span class="lifetime">&#39;analyzer</span>, <span class="ident">L</span>: <span class="ident">Language</span>, <span class="ident">Matcher</span>, <span class="ident">Break</span><span class="op">&gt;</span> {
     <span class="doccomment">/// List of visitors being run by this instance of the analyzer for each phase</span>
     <span class="ident">phases</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Phases</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="ident">Language</span> <span class="op">=</span> <span class="ident">L</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;analyzer</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Holds the metadata for all the rules statically known to the analyzer</span>
+    <span class="ident">metadata</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;analyzer</span> <span class="ident">MetadataRegistry</span>,
     <span class="doccomment">/// Executor for the query matches emitted by the visitors</span>
     <span class="ident">query_matcher</span>: <span class="ident">Matcher</span>,
     <span class="doccomment">/// Language-specific suppression comment parsing function</span>
@@ -799,12 +810,14 @@
     <span class="doccomment">/// Construct a new instance of the analyzer with the given rule registry</span>
     <span class="doccomment">/// and suppression comment parser</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">metadata</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;analyzer</span> <span class="ident">MetadataRegistry</span>,
         <span class="ident">query_matcher</span>: <span class="ident">Matcher</span>,
         <span class="ident">parse_suppression_comment</span>: <span class="ident">SuppressionParser</span>,
         <span class="ident">emit_signal</span>: <span class="ident">SignalHandler</span><span class="op">&lt;</span><span class="lifetime">&#39;analyzer</span>, <span class="ident">L</span>, <span class="ident">Break</span><span class="op">&gt;</span>,
     ) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">phases</span>: <span class="ident">BTreeMap::new</span>(),
+            <span class="ident">metadata</span>,
             <span class="ident">query_matcher</span>,
             <span class="ident">parse_suppression_comment</span>,
             <span class="ident">emit_signal</span>,
@@ -824,6 +837,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">AnalyzerContext</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Break</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="self">Self</span> {
             <span class="ident">phases</span>,
+            <span class="ident">metadata</span>,
             <span class="kw-2">mut</span> <span class="ident">query_matcher</span>,
             <span class="ident">parse_suppression_comment</span>,
             <span class="kw-2">mut</span> <span class="ident">emit_signal</span>,
@@ -836,6 +850,7 @@
             <span class="kw">let</span> <span class="ident">runner</span> <span class="op">=</span> <span class="ident">PhaseRunner</span> {
                 <span class="ident">phase</span>,
                 <span class="ident">visitors</span>: <span class="kw-2">&amp;mut</span> <span class="ident">visitors</span>,
+                <span class="ident">metadata</span>,
                 <span class="ident">query_matcher</span>: <span class="kw-2">&amp;mut</span> <span class="ident">query_matcher</span>,
                 <span class="ident">signal_queue</span>: <span class="ident">BinaryHeap::new</span>(),
                 <span class="ident">parse_suppression_comment</span>,
@@ -883,6 +898,8 @@
     <span class="ident">phase</span>: <span class="ident">Phases</span>,
     <span class="doccomment">/// List of visitors being run by this instance of the analyzer for each phase</span>
     <span class="ident">visitors</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;phase</span> <span class="kw-2">mut</span> [<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="ident">Language</span> <span class="op">=</span> <span class="ident">L</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;analyzer</span><span class="op">&gt;</span>],
+    <span class="doccomment">/// Holds the metadata for all the rules statically known to the analyzer</span>
+    <span class="ident">metadata</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;analyzer</span> <span class="ident">MetadataRegistry</span>,
     <span class="doccomment">/// Executor for the query matches emitted by the visitors</span>
     <span class="ident">query_matcher</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;phase</span> <span class="kw-2">mut</span> <span class="ident">Matcher</span>,
     <span class="doccomment">/// Queue for pending analyzer signals</span>
@@ -1116,11 +1133,10 @@
                 });
 
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">group_rule</span> {
-                    <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">query_matcher</span>.<span class="ident">find_group</span>(<span class="ident">rule</span>).<span class="ident">map</span>(<span class="ident">RuleFilter::from</span>),
-                    <span class="prelude-val">Some</span>((<span class="ident">group</span>, <span class="ident">rule</span>)) =&gt; <span class="self">self</span>
-                        .<span class="ident">query_matcher</span>
-                        .<span class="ident">find_rule</span>(<span class="ident">group</span>, <span class="ident">rule</span>)
-                        .<span class="ident">map</span>(<span class="ident">RuleFilter::from</span>),
+                    <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">metadata</span>.<span class="ident">find_group</span>(<span class="ident">rule</span>).<span class="ident">map</span>(<span class="ident">RuleFilter::from</span>),
+                    <span class="prelude-val">Some</span>((<span class="ident">group</span>, <span class="ident">rule</span>)) =&gt; {
+                        <span class="self">self</span>.<span class="ident">metadata</span>.<span class="ident">find_rule</span>(<span class="ident">group</span>, <span class="ident">rule</span>).<span class="ident">map</span>(<span class="ident">RuleFilter::from</span>)
+                    }
                 };
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="ident">key</span> {
@@ -1289,12 +1305,12 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;analysis</span><span class="op">&gt;</span> <span class="ident">AnalysisFilter</span><span class="op">&lt;</span><span class="lifetime">&#39;analysis</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Return `true` if the category `C` matches this filter</span>
-    <span class="kw">fn</span> <span class="ident">match_category</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">GroupCategory</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_category</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="ident">GroupCategory</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">categories</span>.<span class="ident">contains</span>(<span class="ident">C::CATEGORY</span>.<span class="ident">into</span>())
     }
 
     <span class="doccomment">/// Return `true` if the group `G` matches this filter</span>
-    <span class="kw">fn</span> <span class="ident">match_group</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">RuleGroup</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_group</span><span class="op">&lt;</span><span class="ident">G</span>: <span class="ident">RuleGroup</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">match_category</span>::<span class="op">&lt;</span><span class="ident">G::Category</span><span class="op">&gt;</span>()
             <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">enabled_rules</span>.<span class="ident">map_or</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">enabled_rules</span><span class="op">|</span> {
                 <span class="ident">enabled_rules</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">filter</span><span class="op">|</span> <span class="ident">filter</span>.<span class="ident">match_group</span>::<span class="op">&lt;</span><span class="ident">G</span><span class="op">&gt;</span>())
@@ -1307,7 +1323,7 @@
     }
 
     <span class="doccomment">/// Return `true` if the rule `R` matches this filter</span>
-    <span class="kw">fn</span> <span class="ident">match_rule</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_rule</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">Rule</span>,
     {

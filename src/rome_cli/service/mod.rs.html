@@ -422,6 +422,59 @@
 <span id="422">422</span>
 <span id="423">423</span>
 <span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the OS dependent transport layer for the server protocol. This</span>
 <span class="doccomment">//! uses a domain socket created in the global temporary directory on Unix</span>
 <span class="doccomment">//! systems, and a named pipe on Windows. The protocol used for message frames</span>
@@ -432,6 +485,7 @@
     <span class="ident">any::type_name</span>,
     <span class="ident">borrow::Cow</span>,
     <span class="ident">io</span>,
+    <span class="ident">ops::Deref</span>,
     <span class="ident">panic::RefUnwindSafe</span>,
     <span class="ident">str</span>::{<span class="ident">from_utf8</span>, <span class="ident">FromStr</span>},
     <span class="ident">sync::Arc</span>,
@@ -458,7 +512,7 @@
     <span class="ident">runtime::Runtime</span>,
     <span class="ident">sync</span>::{
         <span class="ident">mpsc</span>::{<span class="ident">channel</span>, <span class="ident">Receiver</span>, <span class="ident">Sender</span>},
-        <span class="ident">oneshot</span>,
+        <span class="ident">oneshot</span>, <span class="ident">Notify</span>,
     },
     <span class="ident">time::sleep</span>,
 };
@@ -525,11 +579,38 @@
 <span class="doccomment">/// from the read task, or the request times out</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SocketTransport</span> {
     <span class="ident">runtime</span>: <span class="ident">Runtime</span>,
-    <span class="ident">write_send</span>: <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">write_send</span>: <span class="ident">Sender</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
     <span class="ident">pending_requests</span>: <span class="ident">PendingRequests</span>,
 }
 
-<span class="kw">type</span> <span class="ident">PendingRequests</span> <span class="op">=</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">JsonRpcResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Stores a handle to the map of pending requests, and clears the map</span>
+<span class="doccomment">/// automatically when the handle is dropped</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">struct</span> <span class="ident">PendingRequests</span> {
+    <span class="ident">inner</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">JsonRpcResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">PendingRequests</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">JsonRpcResult</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">as_ref</span>()
+    }
+}
+
+<span class="doccomment">/// There are two live handles to the pending requests map: one is in the</span>
+<span class="doccomment">/// `SocketTransport` and the other in the `read_task`. The `SocketTransport`</span>
+<span class="doccomment">/// instance can only be dropped if it&#39;s empty (since the `request` method</span>
+<span class="doccomment">/// blocks until the request is resolved, `&amp;self` will always outlive any</span>
+<span class="doccomment">/// pending request), but the `read_task` may abort if it encounters an error</span>
+<span class="doccomment">/// or receives a shutdown broadcast while there are still pending requests. In</span>
+<span class="doccomment">/// this case the `Drop` implementation will ensure that all pending requests</span>
+<span class="doccomment">/// are cancelled immediately instead of timing out.</span>
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">PendingRequests</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clear</span>();
+    }
+}
 
 <span class="kw">impl</span> <span class="ident">SocketTransport</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">W</span><span class="op">&gt;</span>(<span class="ident">runtime</span>: <span class="ident">Runtime</span>, <span class="ident">socket_read</span>: <span class="ident">R</span>, <span class="ident">socket_write</span>: <span class="ident">W</span>) -&gt; <span class="self">Self</span>
@@ -548,14 +629,26 @@
 
         <span class="kw">let</span> (<span class="ident">write_send</span>, <span class="ident">write_recv</span>) <span class="op">=</span> <span class="ident">channel</span>(<span class="ident">WRITE_CHANNEL_CAPACITY</span>);
 
-        <span class="kw">let</span> <span class="ident">pending_requests</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">DashMap</span><span class="op">&lt;</span><span class="ident">u64</span>, <span class="ident">oneshot::Sender</span><span class="op">&lt;</span><span class="ident">JsonRpcResult</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Arc::default</span>();
-        <span class="kw">let</span> <span class="ident">pending_requests_2</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">pending_requests</span>);
+        <span class="kw">let</span> <span class="ident">pending_requests</span> <span class="op">=</span> <span class="ident">PendingRequests::default</span>();
+        <span class="kw">let</span> <span class="ident">pending_requests_2</span> <span class="op">=</span> <span class="ident">pending_requests</span>.<span class="ident">clone</span>();
 
         <span class="kw">let</span> <span class="ident">socket_read</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">socket_read</span>);
         <span class="kw">let</span> <span class="ident">socket_write</span> <span class="op">=</span> <span class="ident">BufWriter::new</span>(<span class="ident">socket_write</span>);
 
-        <span class="ident">runtime</span>.<span class="ident">spawn</span>(<span class="ident">write_task</span>(<span class="ident">write_recv</span>, <span class="ident">socket_write</span>));
-        <span class="ident">runtime</span>.<span class="ident">spawn</span>(<span class="ident">read_task</span>(<span class="ident">socket_read</span>, <span class="ident">pending_requests</span>));
+        <span class="kw">let</span> <span class="ident">broadcast_shutdown</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Notify::new</span>());
+
+        <span class="ident">runtime</span>.<span class="ident">spawn</span>(<span class="ident">write_task</span>(
+            <span class="ident">broadcast_shutdown</span>.<span class="ident">clone</span>(),
+            <span class="ident">write_recv</span>,
+            <span class="ident">socket_write</span>,
+        ));
+
+        <span class="ident">runtime</span>.<span class="ident">spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="macro">tokio::select!</span> {
+                <span class="kw">_</span> <span class="op">=</span> <span class="ident">read_task</span>(<span class="ident">socket_read</span>, <span class="kw-2">&amp;</span><span class="ident">pending_requests</span>) =&gt; {}
+                <span class="kw">_</span> <span class="op">=</span> <span class="ident">broadcast_shutdown</span>.<span class="ident">notified</span>() =&gt; {}
+            }
+        });
 
         <span class="self">Self</span> {
             <span class="ident">runtime</span>,
@@ -578,6 +671,8 @@
 
         <span class="self">self</span>.<span class="ident">pending_requests</span>.<span class="ident">insert</span>(<span class="ident">request</span>.<span class="ident">id</span>, <span class="ident">send</span>);
 
+        <span class="kw">let</span> <span class="ident">is_shutdown</span> <span class="op">=</span> <span class="ident">request</span>.<span class="ident">method</span> <span class="op">==</span> <span class="string">&quot;rome/shutdown&quot;</span>;
+
         <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">JsonRpcRequest</span> {
             <span class="ident">jsonrpc</span>: <span class="ident">Cow::Borrowed</span>(<span class="string">&quot;2.0&quot;</span>),
             <span class="ident">id</span>: <span class="ident">request</span>.<span class="ident">id</span>,
@@ -594,7 +689,7 @@
 
         <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">runtime</span>.<span class="ident">block_on</span>(<span class="kw">async</span> <span class="kw">move</span> {
             <span class="self">self</span>.<span class="ident">write_send</span>
-                .<span class="ident">send</span>(<span class="ident">request</span>)
+                .<span class="ident">send</span>((<span class="ident">request</span>, <span class="ident">is_shutdown</span>))
                 .<span class="kw">await</span>
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TransportError::ChannelClosed</span>)<span class="question-mark">?</span>;
 
@@ -624,7 +719,7 @@
     }
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_task</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">socket_read</span>: <span class="ident">BufReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">pending_requests</span>: <span class="ident">PendingRequests</span>)
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">read_task</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">socket_read</span>: <span class="ident">BufReader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>, <span class="ident">pending_requests</span>: <span class="kw-2">&amp;</span><span class="ident">PendingRequests</span>)
 <span class="kw">where</span>
     <span class="ident">R</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 {
@@ -650,7 +745,7 @@
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
                 <span class="macro">eprintln!</span>(
                     <span class="string">&quot;{:?}&quot;</span>,
-                    <span class="ident">err</span>.<span class="ident">context</span>(<span class="string">&quot;remote connection write task exited with an error&quot;</span>)
+                    <span class="ident">err</span>.<span class="ident">context</span>(<span class="string">&quot;remote connection read task exited with an error&quot;</span>)
                 );
                 <span class="kw">break</span>;
             }
@@ -744,16 +839,27 @@
     <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">write_task</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">write_recv</span>: <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">socket_write</span>: <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>)
-<span class="kw">where</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">write_task</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>(
+    <span class="ident">broadcast_shutdown</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Notify</span><span class="op">&gt;</span>,
+    <span class="kw-2">mut</span> <span class="ident">write_recv</span>: <span class="ident">Receiver</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
+    <span class="kw-2">mut</span> <span class="ident">socket_write</span>: <span class="ident">BufWriter</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>,
+) <span class="kw">where</span>
     <span class="ident">W</span>: <span class="ident">AsyncWrite</span> <span class="op">+</span> <span class="ident">Unpin</span>,
 {
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">message</span>) <span class="op">=</span> <span class="ident">write_recv</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
+    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">message</span>, <span class="ident">is_shutdown</span>)) <span class="op">=</span> <span class="ident">write_recv</span>.<span class="ident">recv</span>().<span class="kw">await</span> {
+        <span class="kw">if</span> <span class="ident">is_shutdown</span> {
+            <span class="ident">broadcast_shutdown</span>.<span class="ident">notify_waiters</span>();
+        }
+
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">write_message</span>(<span class="kw-2">&amp;mut</span> <span class="ident">socket_write</span>, <span class="ident">message</span>).<span class="kw">await</span> {
             <span class="macro">eprintln!</span>(
                 <span class="string">&quot;{:?}&quot;</span>,
-                <span class="ident">err</span>.<span class="ident">context</span>(<span class="string">&quot;remote connection read task exited with an error&quot;</span>)
+                <span class="ident">err</span>.<span class="ident">context</span>(<span class="string">&quot;remote connection write task exited with an error&quot;</span>)
             );
+            <span class="kw">break</span>;
+        }
+
+        <span class="kw">if</span> <span class="ident">is_shutdown</span> {
             <span class="kw">break</span>;
         }
     }

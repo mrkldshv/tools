@@ -30,10 +30,10 @@
 <span class="macro">assert_eq!</span>(
     <span class="ident">formatted</span>.<span class="ident">document</span>().<span class="ident">as_ref</span>(),
     <span class="kw-2">&amp;</span>[
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;The next soft line or space gets replaced by a space&quot;</span> }),
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;The next soft line or space gets replaced by a space&quot;</span> },
         <span class="ident">FormatElement::Space</span>,
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;and the line here&quot;</span> }),
-        <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;is removed entirely.&quot;</span> })
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;and the line here&quot;</span> },
+        <span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;is removed entirely.&quot;</span> }
     ]
 );
 </code></pre></div>

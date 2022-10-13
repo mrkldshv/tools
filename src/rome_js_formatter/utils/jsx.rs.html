@@ -1152,10 +1152,10 @@
 
 <span class="kw">impl</span> <span class="ident">Format</span><span class="op">&lt;</span><span class="ident">JsFormatContext</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">JsxWord</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="ident">JsFormatContext</span><span class="op">&gt;</span>) -&gt; <span class="ident">FormatResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::Text</span>(<span class="ident">Text::SyntaxTokenTextSlice</span> {
+        <span class="ident">f</span>.<span class="ident">write_element</span>(<span class="ident">FormatElement::SyntaxTokenTextSlice</span> {
             <span class="ident">source_position</span>: <span class="self">self</span>.<span class="ident">source_position</span>,
             <span class="ident">slice</span>: <span class="self">self</span>.<span class="ident">text</span>.<span class="ident">clone</span>(),
-        }))
+        })
     }
 }
 

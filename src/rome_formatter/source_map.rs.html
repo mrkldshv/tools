@@ -767,6 +767,7 @@
 <span id="767">767</span>
 <span id="768">768</span>
 <span id="769">769</span>
+<span id="770">770</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Printed</span>, <span class="ident">SourceMarker</span>, <span class="ident">TextRange</span>};
 <span class="kw">use</span> <span class="ident">rome_rowan::TextLen</span>;
 <span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">Language</span>, <span class="ident">SyntaxNode</span>, <span class="ident">TextSize</span>};
@@ -975,8 +976,9 @@
     <span class="doccomment">/// in the original, untransformed source code.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The printer creates a source map that allows mapping positions from the newly formatted document</span>
-    <span class="doccomment">/// back to the locations of the tree. However, the source positions stored in [crate::FormatElement::Text]</span>
-    <span class="doccomment">/// are relative to the transformed tree and not the original tree passed to [crate::format_node].</span>
+    <span class="doccomment">/// back to the locations of the tree. However, the source positions stored in [crate::FormatElement::DynamicText]</span>
+    <span class="doccomment">/// and [crate::FormatElement::SyntaxTokenTextSlice] are relative to the transformed tree</span>
+    <span class="doccomment">/// and not the original tree passed to [crate::format_node].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This function re-maps the positions from the positions in the transformed tree back to the positions</span>
     <span class="doccomment">/// in the original, untransformed tree.</span>

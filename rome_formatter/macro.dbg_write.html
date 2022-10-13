@@ -13,7 +13,7 @@
 <span class="macro">dbg_write!</span>(<span class="ident">buffer</span>, [<span class="ident">text</span>(<span class="string">&quot;Hello&quot;</span>)])<span class="question-mark">?</span>;
 <span class="comment">// ^-- prints: [src/main.rs:7][0] = StaticToken(&quot;Hello&quot;)</span>
 
-<span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">into_vec</span>(), <span class="macro">vec!</span>[<span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span> { <span class="ident">text</span>: <span class="string">&quot;Hello&quot;</span> })]);</code></pre></div>
+<span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">into_vec</span>(), <span class="macro">vec!</span>[<span class="ident">FormatElement::StaticText</span> { <span class="ident">text</span>: <span class="string">&quot;Hello&quot;</span> }]);</code></pre></div>
 <p>Note that the macro is intended as debugging tool and therefore you should avoid having
 uses of it in version control for long periods (other than in tests and similar). Format output
 from production code is better done with <code>[write!]</code></p>

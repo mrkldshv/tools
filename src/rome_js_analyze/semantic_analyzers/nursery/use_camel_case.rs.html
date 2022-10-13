@@ -229,7 +229,7 @@
     <span class="ident">JsPrivateClassMemberName</span>, <span class="ident">JsPropertyClassMember</span>, <span class="ident">JsSetterClassMember</span>, <span class="ident">JsSyntaxKind</span>,
     <span class="ident">JsVariableDeclaration</span>, <span class="ident">JsVariableDeclarator</span>, <span class="ident">JsVariableDeclaratorList</span>, <span class="ident">JsxReferenceIdentifier</span>,
 };
-<span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">declare_node_union</span>, <span class="ident">AstNode</span>, <span class="ident">BatchMutationExt</span>};
+<span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">declare_node_union</span>, <span class="ident">AstNode</span>, <span class="ident">BatchMutationExt</span>, <span class="ident">SyntaxNodeOptionExt</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">iter::once</span>};
 
 <span class="macro">declare_rule!</span> {
@@ -283,7 +283,7 @@
     <span class="kw">match</span> <span class="ident">binding</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>()<span class="question-mark">?</span>.<span class="ident">kind</span>() {
         <span class="ident">JS_VARIABLE_DECLARATOR</span> =&gt; {
             <span class="kw">let</span> <span class="ident">declarator</span> <span class="op">=</span> <span class="ident">binding</span>.<span class="ident">parent</span>::<span class="op">&lt;</span><span class="ident">JsVariableDeclarator</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">is_ok</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">declarator</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">parent</span><span class="op">|</span> <span class="ident">parent</span>.<span class="ident">kind</span>()) {
+            <span class="kw">let</span> <span class="ident">is_ok</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">declarator</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>().<span class="ident">kind</span>() {
                 <span class="prelude-val">Some</span>(<span class="ident">JS_VARIABLE_DECLARATOR_LIST</span>) =&gt; <span class="ident">declarator</span>
                     .<span class="ident">parent</span>::<span class="op">&lt;</span><span class="ident">JsVariableDeclaratorList</span><span class="op">&gt;</span>()<span class="question-mark">?</span>
                     .<span class="ident">parent</span>::<span class="op">&lt;</span><span class="ident">JsVariableDeclaration</span><span class="op">&gt;</span>()<span class="question-mark">?</span>

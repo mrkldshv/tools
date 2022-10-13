@@ -278,6 +278,8 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::react</span>::{<span class="ident">jsx_member_name_is_react_fragment</span>, <span class="ident">jsx_reference_identifier_is_fragment</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::semantic_services::Semantic</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::JsRuleAction</span>;
@@ -292,7 +294,9 @@
     <span class="ident">JsLanguage</span>, <span class="ident">JsSyntaxKind</span>, <span class="ident">JsxAnyChild</span>, <span class="ident">JsxAnyElementName</span>, <span class="ident">JsxAnyTag</span>, <span class="ident">JsxChildList</span>, <span class="ident">JsxElement</span>,
     <span class="ident">JsxFragment</span>, <span class="ident">JsxTagExpression</span>,
 };
-<span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">declare_node_union</span>, <span class="ident">AstNode</span>, <span class="ident">AstNodeList</span>, <span class="ident">BatchMutation</span>, <span class="ident">BatchMutationExt</span>};
+<span class="kw">use</span> <span class="ident">rome_rowan</span>::{
+    <span class="ident">declare_node_union</span>, <span class="ident">AstNode</span>, <span class="ident">AstNodeList</span>, <span class="ident">BatchMutation</span>, <span class="ident">BatchMutationExt</span>, <span class="ident">SyntaxNodeOptionExt</span>,
+};
 
 <span class="macro">declare_rule!</span> {
     <span class="doccomment">/// Disallow unnecessary fragments</span>
@@ -391,7 +395,7 @@
                     .<span class="ident">parent</span>()
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">parent</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">JsxTagExpression::try_cast</span>(<span class="ident">parent</span>) {
                         <span class="prelude-val">Ok</span>(<span class="ident">parent</span>) =&gt; {
-                            <span class="kw">let</span> <span class="ident">parent_kind</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">kind</span>());
+                            <span class="kw">let</span> <span class="ident">parent_kind</span> <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">syntax</span>().<span class="ident">parent</span>().<span class="ident">kind</span>();
                             <span class="macro">matches!</span>(
                                 <span class="ident">parent_kind</span>,
                                 <span class="prelude-val">Some</span>(

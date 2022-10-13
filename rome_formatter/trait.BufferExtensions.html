@@ -25,10 +25,10 @@ and end of the recording</p>
     <span class="macro">assert_eq!</span>(
         <span class="ident">recorded</span>.<span class="ident">deref</span>(),
         <span class="kw-2">&amp;</span>[
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span>{ <span class="ident">text</span>: <span class="string">&quot;A&quot;</span> }),
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span>{ <span class="ident">text</span>: <span class="string">&quot;B&quot;</span> }),
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span>{ <span class="ident">text</span>: <span class="string">&quot;C&quot;</span> }),
-            <span class="ident">FormatElement::Text</span>(<span class="ident">Text::Static</span>{ <span class="ident">text</span>: <span class="string">&quot;D&quot;</span> })
+            <span class="ident">FormatElement::StaticText</span>{ <span class="ident">text</span>: <span class="string">&quot;A&quot;</span> },
+            <span class="ident">FormatElement::StaticText</span>{ <span class="ident">text</span>: <span class="string">&quot;B&quot;</span> },
+            <span class="ident">FormatElement::StaticText</span>{ <span class="ident">text</span>: <span class="string">&quot;C&quot;</span> },
+            <span class="ident">FormatElement::StaticText</span>{ <span class="ident">text</span>: <span class="string">&quot;D&quot;</span> }
         ]
     );
 

@@ -129,11 +129,15 @@
 <span id="129">129</span>
 <span id="130">130</span>
 <span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::env</span>;
 
 <span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">markup</span>, <span class="ident">ConsoleExt</span>};
 <span class="kw">use</span> <span class="ident">rome_lsp::ServerFactory</span>;
-<span class="kw">use</span> <span class="ident">rome_service::workspace::WorkspaceClient</span>;
+<span class="kw">use</span> <span class="ident">rome_service</span>::{<span class="ident">workspace::WorkspaceClient</span>, <span class="ident">RomeError</span>, <span class="ident">TransportError</span>};
 <span class="kw">use</span> <span class="ident">tokio::runtime::Runtime</span>;
 <span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">debug_span</span>, <span class="ident">metadata::LevelFilter</span>, <span class="ident">Instrument</span>, <span class="ident">Metadata</span>};
 <span class="kw">use</span> <span class="ident">tracing_subscriber</span>::{
@@ -171,8 +175,12 @@
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">transport</span>) <span class="op">=</span> <span class="ident">open_transport</span>(<span class="ident">rt</span>)<span class="question-mark">?</span> {
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">WorkspaceClient::new</span>(<span class="ident">transport</span>)<span class="question-mark">?</span>;
-        <span class="comment">// This can be an error if the connection is closed before the empty response is sent</span>
-        <span class="ident">client</span>.<span class="ident">shutdown</span>().<span class="ident">ok</span>();
+        <span class="kw">match</span> <span class="ident">client</span>.<span class="ident">shutdown</span>() {
+            <span class="comment">// The `ChannelClosed` error is expected since the server can</span>
+            <span class="comment">// shutdown before sending a response</span>
+            <span class="prelude-val">Ok</span>(()) <span class="op">|</span> <span class="prelude-val">Err</span>(<span class="ident">RomeError::TransportError</span>(<span class="ident">TransportError::ChannelClosed</span>)) =&gt; {}
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Termination::from</span>(<span class="ident">err</span>)),
+        };
 
         <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="macro">markup!</span> {
             <span class="string">&quot;The Rome server was successfully stopped&quot;</span>
