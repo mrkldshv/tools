@@ -576,6 +576,8 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Generated file, do not edit by hand, see `xtask/codegen`</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ConfigurationError</span>, <span class="ident">RomeError</span>, <span class="ident">RuleConfiguration</span>};
@@ -984,12 +986,13 @@
     <span class="ident">use_button_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">use_camel_case</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">use_fragment_syntax</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
+    <span class="ident">use_key_with_mouse_events</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">use_optional_chain</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
     <span class="ident">use_valid_anchor</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RuleConfiguration</span><span class="op">&gt;</span>,
 }
 <span class="kw">impl</span> <span class="ident">Nursery</span> {
     <span class="kw">const</span> <span class="ident">CATEGORY_NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;nursery&quot;</span>;
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">CATEGORY_RULES</span>: [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>; <span class="number">22</span>] <span class="op">=</span> [
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">CATEGORY_RULES</span>: [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>; <span class="number">23</span>] <span class="op">=</span> [
         <span class="string">&quot;noArrayIndexKey&quot;</span>,
         <span class="string">&quot;noAutofocus&quot;</span>,
         <span class="string">&quot;noChildrenProp&quot;</span>,
@@ -1010,6 +1013,7 @@
         <span class="string">&quot;useButtonType&quot;</span>,
         <span class="string">&quot;useCamelCase&quot;</span>,
         <span class="string">&quot;useFragmentSyntax&quot;</span>,
+        <span class="string">&quot;useKeyWithMouseEvents&quot;</span>,
         <span class="string">&quot;useOptionalChain&quot;</span>,
         <span class="string">&quot;useValidAnchor&quot;</span>,
     ];
