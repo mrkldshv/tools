@@ -911,8 +911,6 @@
 <span id="911">911</span>
 <span id="912">912</span>
 <span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Rome&#39;s official JavaScript formatter.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Implement the formatter</span>
@@ -1562,6 +1560,7 @@
     <span class="kw">use</span> <span class="ident">rome_rowan</span>::{<span class="ident">TextRange</span>, <span class="ident">TextSize</span>};
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::check_reformat</span>::{<span class="ident">check_reformat</span>, <span class="ident">CheckReformatParams</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::context::trailing_comma::TrailingComma</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_range_formatting</span>() {
@@ -1776,20 +1775,17 @@ function() {
     <span class="comment">// use this test check if your snippet prints as you wish, without using a snapshot</span>
     <span class="kw">fn</span> <span class="ident">quick_test</span>() {
         <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="string">r#&quot;
-const b4 = (
-	&lt;div&gt;
-		Text &lt;a data-very-long-prop-breakline-rome-playground data-other&gt;
-			some link
-		&lt;/a&gt;{&quot; &quot;}
-		| some other text,{&quot; &quot;}
-	&lt;/div&gt;
-);
+const a = [
+	longlonglonglongItem1longlonglonglongItem1,
+	longlonglonglongItem1longlonglonglongItem2,
+	longlonglonglongItem1longlonglonglongItem3,
+];
 
 &quot;#</span>;
-        <span class="kw">let</span> <span class="ident">syntax</span> <span class="op">=</span> <span class="ident">SourceType::jsx</span>();
+        <span class="kw">let</span> <span class="ident">syntax</span> <span class="op">=</span> <span class="ident">SourceType::tsx</span>();
         <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">parse</span>(<span class="ident">src</span>, <span class="ident">FileId::zero</span>(), <span class="ident">syntax</span>);
         <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">JsFormatOptions::new</span>(<span class="ident">syntax</span>);
-
+        <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">options</span>.<span class="ident">with_trailing_comma</span>(<span class="ident">TrailingComma::None</span>);
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">format_node</span>(<span class="ident">options</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">tree</span>.<span class="ident">syntax</span>())
             .<span class="ident">unwrap</span>()
             .<span class="ident">print</span>()

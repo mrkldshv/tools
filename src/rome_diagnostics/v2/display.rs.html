@@ -937,15 +937,18 @@
 <span id="937">937</span>
 <span id="938">938</span>
 <span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">io</span>, <span class="ident">iter</span>};
 
-<span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">fmt</span>, <span class="ident">markup</span>, <span class="ident">Markup</span>, <span class="ident">MarkupBuf</span>, <span class="ident">MarkupElement</span>, <span class="ident">MarkupNode</span>};
+<span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">fmt</span>, <span class="ident">markup</span>, <span class="ident">HorizontalLine</span>, <span class="ident">Markup</span>, <span class="ident">MarkupBuf</span>, <span class="ident">MarkupElement</span>, <span class="ident">MarkupNode</span>};
 <span class="kw">use</span> <span class="ident">rome_text_edit::TextEdit</span>;
 <span class="kw">use</span> <span class="ident">unicode_width::UnicodeWidthStr</span>;
 
 <span class="kw">mod</span> <span class="ident">backtrace</span>;
 <span class="kw">mod</span> <span class="ident">diff</span>;
 <span class="kw">mod</span> <span class="ident">frame</span>;
+<span class="kw">mod</span> <span class="ident">message</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::v2::display::frame::SourceFile</span>;
 
@@ -955,6 +958,7 @@
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::backtrace</span>::{<span class="ident">set_bottom_frame</span>, <span class="ident">Backtrace</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::message::MessageAndDescription</span>;
 
 <span class="doccomment">/// Helper struct from printing the description of a diagnostic into any</span>
 <span class="doccomment">/// formatter implementing [std::fmt::Write].</span>
@@ -1070,7 +1074,7 @@
 
         <span class="kw">let</span> <span class="ident">text_width</span> <span class="op">=</span> <span class="ident">slot</span>.<span class="ident">map_or</span>(<span class="number">0</span>, <span class="op">|</span><span class="ident">writer</span><span class="op">|</span> <span class="ident">writer</span>.<span class="ident">width</span>);
         <span class="kw">let</span> <span class="ident">line_width</span> <span class="op">=</span> <span class="ident">HEADER_WIDTH</span>.<span class="ident">saturating_sub</span>(<span class="ident">text_width</span>).<span class="ident">max</span>(<span class="ident">MIN_WIDTH</span>);
-        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\u{2501}&quot;</span>.<span class="ident">repeat</span>(<span class="ident">line_width</span>))
+        <span class="ident">HorizontalLine::new</span>(<span class="ident">line_width</span>).<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
 

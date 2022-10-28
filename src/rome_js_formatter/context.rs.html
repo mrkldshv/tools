@@ -334,7 +334,25 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::comments</span>::{<span class="ident">FormatJsLeadingComment</span>, <span class="ident">JsCommentStyle</span>, <span class="ident">JsComments</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::context::trailing_comma::TrailingComma</span>;
 <span class="kw">use</span> <span class="ident">rome_formatter::printer::PrinterOptions</span>;
 <span class="kw">use</span> <span class="ident">rome_formatter</span>::{
     <span class="ident">CstFormatContext</span>, <span class="ident">FormatContext</span>, <span class="ident">FormatElement</span>, <span class="ident">FormatOptions</span>, <span class="ident">IndentStyle</span>, <span class="ident">LineWidth</span>,
@@ -345,6 +363,8 @@
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
 <span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">trailing_comma</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JsFormatContext</span> {
@@ -475,6 +495,9 @@
     <span class="doccomment">/// When properties in objects are quoted. Defaults to as-needed.</span>
     <span class="ident">quote_properties</span>: <span class="ident">QuoteProperties</span>,
 
+    <span class="doccomment">/// Print trailing commas wherever possible in multi-line comma-separated syntactic structures. Defaults to &quot;all&quot;.</span>
+    <span class="ident">trailing_comma</span>: <span class="ident">TrailingComma</span>,
+
     <span class="doccomment">/// Information related to the current file</span>
     <span class="ident">source_type</span>: <span class="ident">SourceType</span>,
 }
@@ -487,6 +510,7 @@
             <span class="ident">line_width</span>: <span class="ident">LineWidth::default</span>(),
             <span class="ident">quote_style</span>: <span class="ident">QuoteStyle::default</span>(),
             <span class="ident">quote_properties</span>: <span class="ident">QuoteProperties::default</span>(),
+            <span class="ident">trailing_comma</span>: <span class="ident">TrailingComma::default</span>(),
         }
     }
 
@@ -510,6 +534,11 @@
         <span class="self">self</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_trailing_comma</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">trailing_comma</span>: <span class="ident">TrailingComma</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">trailing_comma</span> <span class="op">=</span> <span class="ident">trailing_comma</span>;
+        <span class="self">self</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quote_style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">QuoteStyle</span> {
         <span class="self">self</span>.<span class="ident">quote_style</span>
     }
@@ -520,6 +549,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SourceType</span> {
         <span class="self">self</span>.<span class="ident">source_type</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trailing_comma</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TrailingComma</span> {
+        <span class="self">self</span>.<span class="ident">trailing_comma</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tab_width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TabWidth</span> {
@@ -551,7 +584,8 @@
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Indent style: {}&quot;</span>, <span class="self">self</span>.<span class="ident">indent_style</span>)<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Line width: {}&quot;</span>, <span class="self">self</span>.<span class="ident">line_width</span>.<span class="ident">value</span>())<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Quote style: {}&quot;</span>, <span class="self">self</span>.<span class="ident">quote_style</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Quote properties: {}&quot;</span>, <span class="self">self</span>.<span class="ident">quote_properties</span>)
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Quote properties: {}&quot;</span>, <span class="self">self</span>.<span class="ident">quote_properties</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Trailing comma: {}&quot;</span>, <span class="self">self</span>.<span class="ident">trailing_comma</span>)
     }
 }
 

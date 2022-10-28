@@ -132,14 +132,18 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">markup</span>, <span class="ident">ConsoleExt</span>, <span class="ident">Markup</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CliSession</span>, <span class="ident">Termination</span>};
-
-<span class="kw">const</span> <span class="ident">VERSION</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">option_env!</span>(<span class="string">&quot;ROME_VERSION&quot;</span>) {
-    <span class="prelude-val">Some</span>(<span class="ident">version</span>) =&gt; <span class="ident">version</span>,
-    <span class="prelude-val">None</span> =&gt; <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),
-};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CliSession</span>, <span class="ident">Termination</span>, <span class="ident">VERSION</span>};
 
 <span class="kw">const</span> <span class="ident">MAIN</span>: <span class="ident">Markup</span> <span class="op">=</span> <span class="macro">markup!</span> {
 <span class="string">&quot;Rome CLI v&quot;</span>{<span class="ident">VERSION</span>}<span class="string">&quot;
@@ -148,14 +152,18 @@
     - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;check&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;        Run the linter on a set of files
     - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;ci&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;           Run the linter and check the formatting of a set of files
     - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;format&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;       Run the formatter on a set of files
-    - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;help&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;         Prints this help message
     - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;init&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;         Bootstraps a new rome project
     - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;start&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;        Start the Rome daemon server process
     - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;stop&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;         Stop the Rome daemon server process
+    - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;lsp-proxy&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;    Acts as a server for the Language Server Protocol over stdin/stdout
+    - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;rage&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;         Prints information for debugging
+    - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;version&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;      Shows the Rome version information and quit
+    - &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;help&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;         Prints this help message
 
 &quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;OPTIONS:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--no-colors&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;      Disable the formatting of markup (print everything as plain text)
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--use-server&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;     Connect to a running instance of the Rome daemon server
+    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--version&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;        Show the Rome version information and quit
 &quot;</span>
 };
 
@@ -176,14 +184,12 @@
 
 <span class="kw">const</span> <span class="ident">FORMAT_OPTIONS</span>: <span class="ident">Markup</span> <span class="op">=</span> <span class="macro">markup!</span> {
     <span class="string">&quot;
-    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--write&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                                  Edit the files in place (beware!) instead of printing the diff to the console
-    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--skip-errors&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                            Skip over files containing syntax errors instead of emitting an error diagnostic.
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--indent-style &lt;tabs|space&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;              Change the indention character (default: tabs)
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--indent-size &lt;number&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                   If the indentation style is set to spaces, determine how many spaces should be used for indentation (default: 2)
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--line-width &lt;number&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                    Change how many characters the formatter is allowed to print in a single line (default: 80)
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--quote-style &lt;single|double&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;            Changes the quotation character for strings (default: \&quot;)
     &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--quote-properties &lt;as-needed|preserve&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;  Changes when properties in object should be quoted (default: as-needed)
-    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--stdin-file-path &lt;string&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                A file name with its extension to pass when reading from standard in, e.g. echo &#39;let a;&#39; | rome format --stdin-file-path file.js
+    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--trailing-comma &lt;all|es5|none&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;          Changes trailing commas in multi-line comma-separated syntactic structures (default: all)
     &quot;</span>
 };
 
@@ -195,7 +201,7 @@
 
     INPUTS can be one or more filesystem path, each pointing to a single file or an entire directory to be searched recursively for supported files
 
-&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;OPTIONS:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span>
+&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;OPTIONS:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;&quot;</span>
     {<span class="ident">FORMAT_OPTIONS</span>}
 };
 
@@ -207,8 +213,12 @@
 
     INPUTS can be one or more filesystem path, each pointing to a single file or an entire directory to be searched recursively for supported files
 
-&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;OPTIONS:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;&quot;</span>
+&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;OPTIONS:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;
+    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--write&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                                  Edit the files in place (beware!) instead of printing the diff to the console
+    &quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--skip-errors&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;                            Skip over files containing syntax errors instead of emitting an error diagnostic.&quot;</span>
     {<span class="ident">FORMAT_OPTIONS</span>}
+   <span class="string">&quot;&quot;</span><span class="op">&lt;</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;--stdin-file-path &lt;string&gt;&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Dim</span><span class="op">&gt;</span><span class="string">&quot;               A file name with its extension to pass when reading from standard in, e.g. echo &#39;let a;&#39; | rome format --stdin-file-path file.js
+&quot;</span>
 };
 
 <span class="kw">const</span> <span class="ident">INIT</span>: <span class="ident">Markup</span> <span class="op">=</span> <span class="macro">markup!</span> {
@@ -230,41 +240,49 @@
     rome stop&quot;</span>
 };
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">help</span>(<span class="kw-2">mut</span> <span class="ident">session</span>: <span class="ident">CliSession</span>, <span class="ident">command</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Termination</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">command</span> {
-        <span class="prelude-val">Some</span>(<span class="string">&quot;help&quot;</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">MAIN</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">Some</span>(<span class="string">&quot;check&quot;</span>) =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">CHECK</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">Some</span>(<span class="string">&quot;ci&quot;</span>) =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">CI</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">Some</span>(<span class="string">&quot;format&quot;</span>) =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">FORMAT</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">Some</span>(<span class="string">&quot;init&quot;</span>) =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">INIT</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">Some</span>(<span class="string">&quot;start&quot;</span>) =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">START</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
-        <span class="prelude-val">Some</span>(<span class="string">&quot;stop&quot;</span>) =&gt; {
-            <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">STOP</span>);
-            <span class="prelude-val">Ok</span>(())
-        }
+<span class="kw">const</span> <span class="ident">START_LSP_PROXY</span>: <span class="ident">Markup</span> <span class="op">=</span> <span class="macro">markup!</span> {
+<span class="string">&quot;Rome lsp-proxy: Acts as a server for the Language Server Protocol over stdin/stdout
 
-        <span class="prelude-val">Some</span>(<span class="ident">cmd</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Termination::UnknownCommandHelp</span> {
-            <span class="ident">command</span>: <span class="ident">cmd</span>.<span class="ident">into</span>(),
-        }),
-    }
+	&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;USAGE:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;
+		rome lsp-proxy&quot;</span>
+};
+
+<span class="kw">const</span> <span class="ident">RAGE</span>: <span class="ident">Markup</span> <span class="op">=</span> <span class="macro">markup!</span> {
+<span class="string">&quot;Rome rage: Prints information for debugging
+
+&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;USAGE:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;
+    rome rage&quot;</span>
+};
+
+<span class="kw">const</span> <span class="ident">VERSION_HELP_TEXT</span>: <span class="ident">Markup</span> <span class="op">=</span> <span class="macro">markup!</span> {
+<span class="string">&quot;Rome version: Show the Rome version information
+
+&quot;</span><span class="op">&lt;</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;USAGE:&quot;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">Emphasis</span><span class="op">&gt;</span><span class="string">&quot;
+    rome version&quot;</span>
+};
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">help</span>(<span class="kw-2">mut</span> <span class="ident">session</span>: <span class="ident">CliSession</span>, <span class="ident">command</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Termination</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">help_text</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">command</span> {
+        <span class="prelude-val">Some</span>(<span class="string">&quot;help&quot;</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="ident">MAIN</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;check&quot;</span>) =&gt; <span class="ident">CHECK</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;ci&quot;</span>) =&gt; <span class="ident">CI</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;format&quot;</span>) =&gt; <span class="ident">FORMAT</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;init&quot;</span>) =&gt; <span class="ident">INIT</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;start&quot;</span>) =&gt; <span class="ident">START</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;stop&quot;</span>) =&gt; <span class="ident">STOP</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;lsp-proxy&quot;</span>) =&gt; <span class="ident">START_LSP_PROXY</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;version&quot;</span>) =&gt; <span class="ident">VERSION_HELP_TEXT</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;rage&quot;</span>) =&gt; <span class="ident">RAGE</span>,
+
+        <span class="prelude-val">Some</span>(<span class="ident">cmd</span>) =&gt; {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Termination::UnknownCommandHelp</span> {
+                <span class="ident">command</span>: <span class="ident">cmd</span>.<span class="ident">into</span>(),
+            })
+        }
+    };
+
+    <span class="ident">session</span>.<span class="ident">app</span>.<span class="ident">console</span>.<span class="ident">log</span>(<span class="ident">help_text</span>);
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rome_cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

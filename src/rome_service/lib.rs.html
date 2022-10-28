@@ -296,6 +296,11 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rome_console::fmt::Bytes</span>;
 <span class="kw">use</span> <span class="ident">rome_console</span>::{<span class="ident">Console</span>, <span class="ident">EnvConsole</span>};
 <span class="kw">use</span> <span class="ident">rome_formatter::FormatError</span>;
@@ -330,6 +335,11 @@
 
 <span class="doccomment">/// Exports only for this crate</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::configuration</span>::{<span class="ident">deserialize_set_of_strings</span>, <span class="ident">serialize_set_of_strings</span>};
+
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">VERSION</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">option_env!</span>(<span class="string">&quot;ROME_VERSION&quot;</span>) {
+    <span class="prelude-val">Some</span>(<span class="ident">version</span>) =&gt; <span class="ident">version</span>,
+    <span class="prelude-val">None</span> =&gt; <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),
+};
 
 <span class="doccomment">/// This is the main entrypoint of the application.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">App</span><span class="op">&lt;</span><span class="lifetime">&#39;app</span><span class="op">&gt;</span> {
@@ -469,7 +479,7 @@
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;The file {} was ignored&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>())
             }
             <span class="ident">RomeError::FileTooLarge</span> { <span class="ident">path</span>, <span class="ident">size</span>, <span class="ident">limit</span> } =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;The file {} could not be parsed because it&#39;s too large (the file is {} long, but the size limit is {})&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>(), <span class="ident">Bytes</span>(<span class="kw-2">*</span><span class="ident">size</span>), <span class="ident">Bytes</span>(<span class="kw-2">*</span><span class="ident">limit</span>))
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Size of {} is {} which exceeds configured maximum of {} for this project. The file size limit exists to prevent us inadvertently slowing down and loading large files that we shouldn&#39;t.&quot;</span>, <span class="ident">path</span>.<span class="ident">display</span>(), <span class="ident">Bytes</span>(<span class="kw-2">*</span><span class="ident">size</span>), <span class="ident">Bytes</span>(<span class="kw-2">*</span><span class="ident">limit</span>))
             }
         }
     }

@@ -154,6 +154,24 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">atty::Stream</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Read</span>, <span class="ident">Stdin</span>, <span class="ident">Write</span>};
@@ -166,9 +184,10 @@
 <span class="kw">mod</span> <span class="ident">write</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::markup</span>::{<span class="ident">Markup</span>, <span class="ident">MarkupBuf</span>, <span class="ident">MarkupElement</span>, <span class="ident">MarkupNode</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::fmt::Formatter</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">rome_markup::markup</span>;
 
-<span class="doccomment">/// Determines the &quot;ouput stream&quot; a message should get printed to</span>
+<span class="doccomment">/// Determines the &quot;output stream&quot; a message should get printed to</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LogLevel</span> {
     <span class="doccomment">/// Print the message to the `Error` stream of the console, for instance</span>
@@ -308,6 +327,23 @@
             <span class="comment">// particular use case for multiple prompts</span>
             <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">in_buffer</span>[<span class="number">0</span>].<span class="ident">clone</span>())
         }
+    }
+}
+
+<span class="doccomment">/// A horizontal line with the given print width</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HorizontalLine</span> {
+    <span class="ident">width</span>: <span class="ident">usize</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">HorizontalLine</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">width</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">width</span> }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">HorizontalLine</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="kw-2">&amp;</span><span class="string">&quot;\u{2501}&quot;</span>.<span class="ident">repeat</span>(<span class="self">self</span>.<span class="ident">width</span>))
     }
 }
 </code></pre></div>

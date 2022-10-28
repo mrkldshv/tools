@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["QuoteProperties",""],["QuoteStyle",""]],"struct":[["JsFormatContext",""],["JsFormatOptions",""],["TabWidth",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["QuoteProperties",""],["QuoteStyle",""]],"mod":[["trailing_comma",""]],"struct":[["JsFormatContext",""],["JsFormatOptions",""],["TabWidth",""]]};
